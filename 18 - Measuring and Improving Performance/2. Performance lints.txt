@@ -1,0 +1,37 @@
+// -------------------------------------------
+// 			Performance Lints
+// -------------------------------------------
+
+// struct A {
+//     values: Vec<i32>,
+// }
+
+enum B {
+    variant_1(i32),
+    variant_2(Box<[i32; 10_000]>),
+}
+fn main() {
+    // let x = Box::new(32u32);
+    let x: Box<i32> = Box::default();
+
+    let x = String::from("Nouman");
+    let y = "Nouman";
+    if x == y {
+        println!("Values are equal");
+    }
+
+    let mut a = vec![1, 2, 3];
+    let mut b = vec![4, 5, 6];
+    a.extend(b.drain(..));
+
+    a.append(&mut b);
+
+    let hello = "hesuo worpd"
+        .replace("s", "l")
+        .replace("u", "l")
+        .replace("p", "l");
+
+    let hello = "hesuo worpd".replace(['s', 'u', 'p'], "l");
+
+    //https://github.com/rust-lang/rust-clippy
+}
