@@ -1,0 +1,68 @@
+// -------------------------------------------
+// 	- Sized Trait
+//      - Optionally Sized Trait 
+// -------------------------------------------
+
+
+// include as dependency in the cargo.toml file  negative-impl = "0.1.4"
+
+use negative_impl::negative_impl;
+struct ABC;
+
+#[negative_impl]
+impl !Send for ABC {}
+
+#[negative_impl]
+impl !Sync for ABC {}
+
+// #[negative_impl]
+// impl !Sized for ABC {}
+
+//fn some_fn<T>(t: T) {}
+//fn some_fn<T: Sized>(t: T) {}
+fn some_fn<T: ?Sized>(t: &T) {}
+
+
+fn main() {
+    let x: i32 = Default::default();
+    let y = Clone::clone(&x);
+}
+
+
+
+// -------------------------------------------
+// 		- ?Sized and Generic Parameters
+// -------------------------------------------
+
+use std::fmt::Debug;
+
+// 1. Must have a single unsized field.
+// 2. The unsized field must be the last field.
+struct UnSizedStruct<T: ?Sized> {
+    sized_field_1: i32,
+    unsized_field: T,
+}
+
+// fn print_fn<T: Debug>(t: T)
+fn print_fn<T: Debug + ?Sized>(t: &T) {
+    println!("{:?}", t);
+}
+
+fn main() {
+    let x = UnSizedStruct {
+        sized_field_1: 3,
+        unsized_field: [3],
+    };
+
+    let x = "my name";
+    print_fn(&x);
+
+    //     /*
+    //     Parameter type          T	        &T          &T
+    //     Function call Input     &str	        &str        &&str
+    //     Resolves to             T = &str	    T = str     T = &str
+    //     */
+}
+
+
+
