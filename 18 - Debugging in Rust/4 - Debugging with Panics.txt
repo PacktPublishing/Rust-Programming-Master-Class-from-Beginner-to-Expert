@@ -1,0 +1,62 @@
+// -------------------------------------------
+// 	        Debugging with Panics
+// -------------------------------------------
+
+use std::panic::set_hook;
+fn handle_request() {
+    println!("Handling login request ....");
+    process_login("Alice", "");
+}
+
+fn process_login(username: &str, password: &str) {
+    println!("Processing login for user: {}", username);
+    check_credentials(username, password);
+}
+
+fn check_credentials(username: &str, password: &str) {
+    println!("Checking credentials for {}", username);
+    let hashed = hash_password(password);
+    println!("Hashed password: {}", hashed);
+}
+
+fn hash_password(password: &str) -> String {
+    if password.is_empty() {
+        panic!("Password cannot be empty!");
+    }
+    format!("hashed_{}", password)
+}
+fn main() {
+    // unsafe {
+    //     std::env::set_var("RUST_BACKTRACE", "1");
+    // }
+    // handle_request();
+
+    // set_hook(Box::new(|info| {
+    //     eprintln!("Custom Panic: {}", info);
+    //     if let Some(location) = info.location() {
+    //         eprintln!(
+    //             "Occured in file {} at line {}",
+    //             location.file(),
+    //             location.line(),
+    //         );
+    //     }
+    // }));
+
+    // set_hook(Box::new(|info| {
+    //     eprintln!("Custom Panic: {}", info);
+    // }));
+    // panic!("Main fn panicked");
+
+    set_hook(Box::new(|info| {
+        let message = info.payload().downcast_ref::<&str>();
+
+        match message {
+            Some(&"Database error") => println!("Panicked due to DB Error"),
+            Some(&"Config missing") => println!("Panicked due to missing configuration info"),
+            Some(msg) => println!("General panic: {}", msg),
+            None => println!("Unknown panic"),
+        }
+    }));
+
+    panic!();
+}

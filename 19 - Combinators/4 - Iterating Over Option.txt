@@ -1,0 +1,61 @@
+// -------------------------------------------------
+// 			- Iterators on Option
+// -------------------------------------------------
+
+fn main() {
+    // 1. iter()
+    // Converts Option<T> -> Iterator over &T
+
+    let opt = Some(42);
+    let x = opt.iter().next().unwrap();
+    for value in opt.iter() {
+        println!("{value}");
+    }
+
+    // 2. into_iter()
+    // Converts Option<T> -> Iterator over T
+
+    let opt = Some(42);
+    for value in opt.into_iter() {
+        println!("{value}");
+    }
+
+    println!("{:?}", opt);
+
+    // 3. iter_mut()
+    // Converts Option<T> -> Iterator over &mut T
+
+    let mut opt = Some(10);
+
+    for value in opt.iter_mut() {
+        *value += 10;
+        println!("{value}");
+    }
+
+    // 4. Iterating over vector of options
+
+    // unwrap on Option<T> -> T
+    // unwrap on &Option<i32> -> i32
+    // unwrap on Option<&i32> -> &i32
+
+    let mut vec = vec![Some(1), Some(2), Some(3)];
+    for item in vec.iter_mut() {
+        let value = item.as_mut().unwrap();
+
+        // match item {
+        //     Some(inner) => println!("Dom some processing"),
+        //     None => println!("Value is none"),
+        // }
+    }
+}
+
+
+/*
+-----------------------------------------------------
+Method         | Yields           | Usable After
+-----------------------------------------------------
+iter()         | &Option<T>       | ✅ Yes
+into_iter()    | Option<T>        | ❌ No (moved)
+iter_mut()     | &mut Option<T>   | ✅ Yes
+-----------------------------------------------------
+*/

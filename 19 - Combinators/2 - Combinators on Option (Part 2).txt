@@ -1,0 +1,85 @@
+// -------------------------------------------------
+// 			- Combinators on Option
+// -------------------------------------------------
+// chrono = "0.4.44"
+
+use chrono::*;
+fn main() {
+    // 1. map
+    // 2. and_then
+
+    // 3. or(alternate_value)
+ 
+    let primary = Some(1);
+    let alternative_value = Some(10);
+    let result = primary.or(alternative_value);
+
+    // Example:
+    // Get a value from environment
+    // if failed: try from a file
+    // if failed: fallback to a default value
+
+    let env_value = std::env::var("CONFIG_PATH").ok();
+    let file_value = Some(String::from("Configuration values from a file"));
+    let default_value = Some(String::from("default configuration"));
+
+    let config_value = env_value.or(file_value).or(default_value);
+
+    // 4. or_else(closure)
+    // If Some(value) => Some(value)
+    // Otherwise => Some(alterative_value) computed from closure
+
+    let cached_result = Some(1);
+    let resolved_result = cached_result.or_else(|| {
+        println!("Computing expensive alternative value...");
+        // Imagine this is a slow database call or heavy computation
+        std::thread::sleep(std::time::Duration::from_secs(2));
+        Some(42)
+    });
+
+    // 5. filter(predicate)
+    // If predicate/closure is true => Some(value).
+    // Otherwise => None
+
+    let child_age = Some(10);
+    let is_adult = child_age.filter(|&a| a >= 18);
+
+    // 6. unwrap_or(default)
+    // If Some(value) => value (unwrapped)
+    // Otherwise => default value
+
+    let user = Some("Alice");
+    let name = user.unwrap_or("guest");
+
+    // 7. unwrap_or_else(closure)
+    // If Some(value) => value
+    // Otherwise => alterative_value computed from closure
+
+    let greeting_for_user: Option<&str> = None;
+    let greetings = greeting_for_user.unwrap_or_else(|| {
+        let hour = Local::now().hour();
+        if hour < 12 {
+            "Good morning"
+        } else if hour < 18 {
+            "Good afternoon"
+        } else {
+            "Good evening"
+        }
+    });
+
+}
+
+/*
+----------------------------------------------------------------------------------------------------------------------
+Combinator        | If Some(value)                              | If None                              | Fallback Type
+---------------------------------------------------------------------------------------------------------------------
+1. map            | Applies closure/function and wraps in Some  | Returns None                         | Eager
+2. and_then       | Applies closure and returns option          | Returns None                         | Eager
+3. or             | Keeps current Some(value)                   | Returns provided alternate Option    | Eager
+4. or_else        | Keeps current Some(value)                   | Calls closure to compute alternative | Lazy
+5. filter         | Keeps current Some(value) if predicate true | Returns None if predicate is false   | Eager
+6. unwrap_or      | Unwraps the value                           | Returns provided default             | Eager
+7. unwrap_or_else | Unwraps the value                           | Calls closure to compute alternative | Lazy
+---------------------------------------------------------------------------------------------------------------------
+*/
+

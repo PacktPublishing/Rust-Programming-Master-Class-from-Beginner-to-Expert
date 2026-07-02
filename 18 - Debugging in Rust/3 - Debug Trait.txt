@@ -1,0 +1,91 @@
+// -------------------------------------------
+// 	        Debug Trait
+// -------------------------------------------
+
+use core::fmt;
+use std::fmt::{Debug, Display};
+#[derive(Debug)]
+struct Line {
+    start: Point,
+    end: Point,
+}
+
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+// #[derive(Display)]
+struct Color {
+    red: u8,
+    green: u8,
+    blue: u8,
+}
+
+impl Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "RGB({} {} {}) - hex: #{:x}{:x}{:x}",
+            self.red, self.green, self.blue, self.red, self.green, self.blue
+        )
+    }
+}
+impl Debug for Color {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if f.alternate() {
+            write!(
+                f,
+                "Color {{hex: \"#{:X}{:X}{:X}\", 
+                red: {}, 
+                green: {}, 
+                blue: {},
+            }}",
+                self.red, self.green, self.blue, self.red, self.green, self.blue
+            )
+        } else {
+            write!(f, "Color (#{:X}{:X}{:X})", self.red, self.green, self.blue)
+        }
+    }
+}
+fn main() {
+    let points: Vec<Point> = vec![
+        Point { x: 1, y: 2 },
+        Point { x: -3, y: 4 },
+        Point { x: 5, y: 6 },
+    ];
+
+    // for point in &points {
+    //     println!("{:?}", point);
+    //     // println!("Point with coordinates ({} {})", point.x, point.y);
+    // }
+
+    let p = Point { x: 3, y: 4 };
+    let q = Point { x: 5, y: 7 };
+
+    let l = Line { start: p, end: q };
+    println!("{:?}", l);
+    println!("{:#?}", l);
+
+    let magenta = Color {
+        red: 255,
+        green: 0,
+        blue: 255,
+    };
+
+    println!("{:?}", magenta);
+
+    println!("{}", magenta);
+}
+
+
+/*
+---------------------------------------------------------------------
+Debug                                  | Display
+---------------------------------------------------------------------
+Developer-facing diagnostic output     | User-facing, polished output
+can be invoked using {:?}, {:#?}       | {}
+can be derived via #[derive(Debug)]    | Must implement manually
+---------------------------------------------------------------------
+*/

@@ -1,0 +1,77 @@
+// -----------------------------------------------
+// 	        Structured Logging and Tracing
+//          Pre-requisite: Async Programming
+// 		tokio = {version = "1.46.1", features = ["full"]}
+//		tracing = "0.1.41"
+// 		tracing-subscriber = "0.3.19"
+// -----------------------------------------------
+
+use tokio::time::{Duration, sleep};
+use tracing::{debug, error, info, instrument};
+use tracing_subscriber;
+
+// Initialize tracing subscriber with desired log level and formatting
+
+
+// Simulate a full request pipeline: authenticate → validate → save to DB
+#[instrument]
+async fn process_request(user_id: u32, order_id: u32) {
+    authenticate(user_id).await;
+
+    // validate order
+    if validate_order(order_id).await.is_err() {
+        error!(%order_id, %user_id, "Validation failed");
+        return;
+    }
+
+    // save to database
+    match save_to_db(order_id).await {
+        Ok(_) => info!(%order_id, "Order saved successfully"),
+        Err(e) => error!(%order_id, error = %e, "DB save failed"),
+    }
+}
+
+// Simulate user authentication
+#[instrument]
+async fn authenticate(user_id: u32) {
+    debug!(%user_id, "Authenticating user");
+    sleep(Duration::from_millis(50)).await;
+    info!(%user_id, "Authentication successful");
+}
+
+// Simulate order validation
+#[instrument]
+async fn validate_order(order_id: u32) -> Result<(), &'static str> {
+    debug!(%order_id, "Validating order");
+    sleep(Duration::from_millis(80)).await;
+
+    if order_id % 2 == 0 {
+        Ok(())
+    } else {
+        Err("Invalid order quantity")
+    }
+}
+
+// Simulate saving to a database
+#[instrument]
+async fn save_to_db(order_id: u32) -> Result<(), &'static str> {
+    debug!(%order_id, "Saving order to database");
+    sleep(Duration::from_millis(100)).await;
+    Ok(())
+}
+
+// Entry point: spawn multiple concurrent requests
+#[tokio::main]
+async fn main() {
+    let subscriber = tracing_subscriber::FmtSubscriber::builder()
+        .with_max_level(tracing::Level::DEBUG) // Set minimum log level
+        .finish();
+
+    tracing::subscriber::set_global_default(subscriber).expect("Setting tracing subscriber failed");
+
+    // Simulate two concurrent requests
+    let task1 = tokio::spawn(process_request(1, 42)); // valid order
+    let task2 = tokio::spawn(process_request(2, 43)); // invalid order
+
+    let _ = tokio::join!(task1, task2);
+}

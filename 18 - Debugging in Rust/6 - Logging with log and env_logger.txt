@@ -1,0 +1,70 @@
+// -----------------------------------------------
+// 	        Logging with the log and env_logger
+// -----------------------------------------------
+
+use env_logger::Builder;
+use log::{LevelFilter, debug, error, info, warn};
+
+use crate::security::check_access;
+
+// error! - serious errors
+// warn! - warnings
+// info! - general information
+// debug! - detailed diagnostic
+// trace! - very fine-grained information
+
+fn login(username: &str, password: &str) {
+    debug!("Trying to authenticate user: {}", username);
+
+    if username.is_empty() || password.is_empty() {
+        error!("Empty username or password");
+        return;
+    }
+
+    if username == "admin" && password == "secret" {
+        info!("Admin login successful");
+    } else {
+        warn!("Login failed for user: {}", username);
+    }
+}
+
+mod security {
+    use log::{debug, info, trace};
+
+    pub fn check_access(user: &str) {
+        debug!("Checking access rights for: {}", user);
+        trace!("Performing low-level permission check for: {}", user);
+
+        if user == "admin" {
+            info!("Access granted to admin.");
+        } else {
+            info!("Limited access for user: {}", user);
+        }
+    }
+}
+fn main() {
+    // env_logger::init();
+    // Builder::new().filter_level(LevelFilter::Trace).init();
+    // login("guest", "");
+
+    Builder::new()
+        .filter_module("rust_course", LevelFilter::Debug)
+        .filter_module("rust_course::security", LevelFilter::Trace)
+        .init();
+
+    login("guest", "");
+    security::check_access("admin");
+}
+
+/*
+-------------------------------------------------------------------
+Level | Priority | Use Case Example
+-------------------------------------------------------------------
+Error | 5        | Critical failures
+Warn  | 4        | Recoverable issues or unexpected behavior
+Info  | 3        | Normal runtime events
+Debug | 2        | Developer-level debugging
+Trace | 1        | Extremely detailed, fine-grained diagnostics
+-------------------------------------------------------------------
+*/
+s

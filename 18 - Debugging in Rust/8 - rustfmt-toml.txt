@@ -1,0 +1,32 @@
+// -------------------------------------------
+// 	        rustfmt
+// -------------------------------------------
+
+struct Foo {
+    x: u32,
+    y: u32,
+    z: u32,
+}
+
+fn main() {
+    let x = 1;
+    let y = 2;
+    let z = 3;
+    /*
+    let a = Foo {
+        x: x,
+        y: y,
+        z: z,
+    }; */
+    let a = Foo { x, y, z };
+}
+
+// max_width = 100
+// reorder_imports = true
+// comment_width = 100
+// use_field_init_shorthand = true
+// ctrl + , for setting
+
+// https://rust-lang.github.io/rustfmt/?version=v1.8.0&search=import
+
+

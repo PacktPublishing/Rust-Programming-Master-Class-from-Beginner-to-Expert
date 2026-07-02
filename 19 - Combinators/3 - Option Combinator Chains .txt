@@ -1,0 +1,62 @@
+// -------------------------------------------------
+// 			- Option Combinator Chains
+// -------------------------------------------------
+
+fn fetch_user(name: &str) -> Option<String> {
+    println!("Looking for user: {name}");
+    Some(format!("User({})", name))
+}
+
+fn main() {
+    // Pattern 1: map -> filter -> and_then
+    // Transform -> checking -> fetching
+
+    let user = Some("    alice    ")
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .and_then(|name| fetch_user(name));
+
+    // Pattern 2: and_then -> and_then -> map
+    // Multiple fallible steps -> transformation
+
+    let result = Some("42")
+        .and_then(|s| s.parse::<u32>().ok())
+        .and_then(|s| match s {
+            42 => Some("answer_config".to_string()),
+            8080 => Some("web_server_config".to_string()),
+            _ => None,
+        })
+        .map(|config| config.to_uppercase());
+
+    // Pattern 3: or_else -> or_else -> unwrap_or
+    // Attempting multiple fallbacks, ending in an actual value extraction
+
+    let env_config: Option<String> = None;
+    let user_config: Option<String> = Some("/home/user/config.conf".to_string());
+    let default_config: Option<String> = Some("/default.config".to_string());
+
+    let path = env_config
+        .or_else(|| user_config)
+        .or_else(|| default_config)
+        .unwrap_or("/etc/default.conf".to_string());
+
+    // Pattern 4: filter -> map -> unwrap_or_else
+    // Vallidate value, transform, computer fallback if necessary
+
+    let port = Some("8080")
+        .filter(|s| s.chars().all(char::is_numeric))
+        .map(|s| s.parse::<u16>().unwrap_or(0))
+        .unwrap_or_else(|| 3000);
+}
+
+/*
+---------------------------------------------------------------------
+Benefits of Combinators
+---------------------------------------------------------------------
+1. Keeps logic clear and declarative.
+2. Eliminates deeply nested match or if let constructs.
+3. Ensures early exits on None without additional checks.
+4. Encourages lazy evaluation with closures.
+---------------------------------------------------------------------
+*/
+
