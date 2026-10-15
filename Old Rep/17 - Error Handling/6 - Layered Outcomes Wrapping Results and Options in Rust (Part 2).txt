@@ -1,0 +1,37 @@
+// --------------------------------------------------------
+// 	    Layering Result and Option Together (Part 2)
+// --------------------------------------------------------
+
+// Result<Option<T>, E>
+// Option<Result<T, E>>
+
+use std::num::ParseIntError;
+
+fn handle_user_registration(
+    name: &str,
+    age_input: Option<&str>,
+) -> Option<Result<u32, ParseIntError>> {
+    println!("Registering user: {}", name);
+    age_input.map(|s| s.parse::<u32>())
+
+    // None -> None                             // Operation not attempted
+    // Some(value) -> Some(Ok(valid_age))       // Operation attempted and successful
+    // Some(age) -> Some(Err(ParseIntError))    // Operation attempted but failed
+}
+fn main() {
+    match handle_user_registration("Alice", Some("25")) {
+        None => println!("Age not provided, continuing without age"),
+        Some(Ok(age)) => println!("User age is valid: {}", age),
+        Some(Err(e)) => println!("Invalid age input: {}", e),
+    }
+}
+/*
+Aspect          || Result<Option<T>, E>                 || Option<Result<T, E>>
+Operatin type   || The operation must run               || The operation is optional,
+
+Outcomes        || Ok(Some(t)) —> success with a value  || None — operation not run
+                || Ok(None) —> success but no value     || Some(Ok(t)) — tried and successful
+                || Err(e) — actual error                || Some(Err(e)) — tried but failed
+
+Use Case        ||APIs, DB lookup                       || Form field validation,
+ */

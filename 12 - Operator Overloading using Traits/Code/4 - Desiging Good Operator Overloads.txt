@@ -1,0 +1,138 @@
+// -------------------------------------------
+// 		Designing Good Operator Overloads
+// -------------------------------------------
+
+use std::{
+    io::ErrorKind::Other,
+    ops::{Add, AddAssign, Index, Mul, Shl, Sub},
+};
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+struct Vector {
+    x: f64,
+    y: f64,
+}
+
+// 1. Operators Should Match User Expectations
+
+impl Add for Vector {
+    type Output = Vector;
+    fn add(self, other: Self) -> Self::Output {
+        Vector {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+// 2. Use Appropriate Operator
+impl Mul<f64> for Vector {
+    type Output = Vector;
+    fn mul(self, scalar: f64) -> Self::Output {
+        Vector {
+            x: self.x * scalar,
+            y: self.y * scalar,
+        }
+    }
+}
+
+// 3. Prefer Methods for Complex Operations
+impl Vector {
+    fn magnitude(&self) -> f64 {
+        (self.x * self.x + self.y * self.y).sqrt()
+    }
+    fn normalized(&self) -> Vector {
+        let m = self.magnitude();
+        Vector {
+            x: self.x / m,
+            y: self.y / m,
+        }
+    }
+}
+
+// 4. Preserve Mathematical Properties When Possible
+fn check_math_properties() {
+    let a = Vector { x: 1.0, y: 2.0 };
+    let b = Vector { x: 3.0, y: -1.0 };
+    assert_eq!(a + b, b + a); // commutative 
+}
+
+// 5. Consider Ownership Costs
+impl Add for &Vector {
+    type Output = Vector;
+    fn add(self, other: Self) -> Self::Output {
+        Vector {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+// 6. Avoid Hidden Side Effects
+impl Sub for Vector {
+    type Output = Vector;
+    fn sub(self, other: Self) -> Self::Output {
+        Vector {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+}
+
+// 7. Be Consistent Across Related Operators
+impl AddAssign for Vector {
+    fn add_assign(&mut self, other: Self) {
+        self.x += other.x;
+        self.y += other.y;
+    }
+}
+
+// 8. Don't Overload Merely Becuase You Can
+// impl Shl for Vector {}
+impl Index<usize> for Vector {
+    type Output = f64;
+    fn index(&self, i: usize) -> &Self::Output {
+        match i {
+            0 => &self.x,
+            1 => &self.y,
+            _ => panic!("index out of range for vector"),
+        }
+    }
+}
+
+// 9. Overloading Should make the Code More Readable Then the Equivalent Method Call
+fn readability_demo() {
+    let a = Vector { x: 1.0, y: 1.0 };
+    let b = Vector { x: 2.0, y: 3.0 };
+    let sum_operator = a + b; // reads like ordinary vector addition 
+    let sum_method = Add::add(a, b);
+}
+fn main() {}
+
+/*
+------------------------------------------------------------------------------------------------------
+Concept/Topic             | Explanation
+--------------------------|---------------------------------------------------------------------------
+Match User Expectations   | An operator should behave the way a reader already expects it to.
+
+Appropriate Operator      | The operator chosen should already carry the intended meaning.
+                          | Scaling a vector by a number is implemented using Mul.
+
+Methods for Complex Ops   | Operations that are not simple binary mappings should stay as methods.
+                          | Examples include magnitude computation for vectors.
+
+Preserve Math Properties  | Overloaded operators should preserve familiar mathematical laws.
+
+Ownership Costs           | Operator implementations should avoid unnecessary copies or moves.
+
+Avoid Hidden Side Effects | Operators should only compute and return a value.
+                          | It must avoid printing, logging, or mutation.
+
+Consistency Across Ops    | Related operators should behave consistently with one another.
+
+When to Avoid Overloading | An operator should only be overloaded when it is a natural fit.
+                          | Do not overload just becuase you can.
+
+Operators vs Method Call  | An operator should read better than the equivalent method call.
+------------------------------------------------------------------------------------------------------
+*/

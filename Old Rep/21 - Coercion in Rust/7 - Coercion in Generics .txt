@@ -1,0 +1,17 @@
+// -------------------------------------------
+// 	  Coercion in Generic Functions
+// -------------------------------------------
+
+trait Some_Trait {}
+struct A;
+fn generic_fn<T: Some_Trait>(x: T) {}
+
+impl Some_Trait for &A {}
+impl Some_Trait for &mut A {}
+// fn generic_fn_immutable_ref(x: &A) {}
+// fn generic_fn_mutable_ref(x: &mut A) {}
+fn main() {
+    let mut a = A;
+    generic_fn(&a);
+    generic_fn(&mut a);
+}

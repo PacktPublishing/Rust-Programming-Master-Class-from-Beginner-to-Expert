@@ -1,0 +1,70 @@
+// -------------------------------------------
+// 	        Sealed Traits
+// -------------------------------------------
+
+use rust_course::my_module::{MyType1, NonSealedTrait, SomeTrait};
+struct MyType2;
+// impl SomeTrait for MyType2 {
+//     fn some_fn(&self) {
+//         println!("External Code");
+//     }
+// }
+
+impl NonSealedTrait for MyType2 {
+    fn open_for_implementation() {
+        println!("I can be implemented");
+    }
+}
+fn main() {
+    let item1 = MyType1;
+    item1.some_fn();
+}
+
+// Code for library
+
+pub mod my_module {
+    use private_mod::Sealed;
+
+    pub trait SomeTrait: Sealed {
+        fn some_fn(&self);
+    }
+
+    pub trait NonSealedTrait {
+        fn open_for_implementation();
+    }
+    mod private_mod {
+        pub trait Sealed {}
+    }
+
+    pub struct MyType1;
+    impl SomeTrait for MyType1 {
+        fn some_fn(&self) {
+            println!("You can access me");
+        }
+    }
+
+    impl Sealed for MyType1 {}
+}
+
+/*
+-------------------------------------------------------------------------------------------------------------
+Concept / Topic          | Explanation
+-------------------------|-----------------------------------------------------------------------------------
+Sealed Traits            | Sealed traits restrict which types are allowed to implement a trait.
+                         | They expose functionality while preventing external implementations.
+                         | This enforces consistency and prevents unintended behavior.
+
+Role of Private Modules  | A Sealed trait is defined in a private sub module.
+                         | The sealed trait is made as a super trait of trait which we inted to seal. 
+                         | Since pub items of a private child module are visible only to the parent module.
+                         | Therefore external crates cannot access or implement the Sealed trait.
+
+Effect on Implementation | Types inside the defining module can implement both Sealed and the public trait.
+                         | Types outside the module cannot satisfy the Sealed supertrait bound.
+                         | The compiler reports that the trait is sealed when violated.
+
+Access vs Implementation | Sealed traits still allow method calls from outside the module.
+                         | Only implementations are restricted, not usage.
+                         | Consumers must use the provided implementing types.
+-------------------------------------------------------------------------------------------------------------
+*/

@@ -1,0 +1,88 @@
+// -------------------------------------------
+// 	        Drop Check
+//              Prereqs: Struct, Lifetimes, Traits, Ownership
+// -------------------------------------------
+
+/*
+struct A<'a> {
+    a: &'a i32,
+}
+
+impl<'a> Drop for A<'a> {
+    fn drop(&mut self) {
+        println!("Dropping");
+    }
+}
+
+fn main() {}
+*/
+
+// SomeType<T>
+// SomeType<T> // Compiler thinks:- dropping Sometype will access T (regardless of whether or not it access T)
+
+#![feature(dropck_eyepatch)]
+
+struct A<'a> {
+    a: &'a mut i32,
+    //b: String, // add later on
+}
+
+unsafe impl<#[may_dangle] 'a> Drop for A<'a> {
+    fn drop(&mut self) {
+        *self.a *= 2;
+        println!("Dropping");
+    }
+}
+
+fn main() {
+    let mut x = 45;
+    let y = &mut x;
+    println!("{x}");
+
+    let mut x = 45;
+    let b = A {
+        a: &mut x,
+        //b: String::from("some str"), // add later
+    };
+    //drop(b); //This will make the code to compile becuase the b is now dropped and the compiler is not worried that the inner contents are in use by it anymore.
+    println!("{}", x); // which means that this is not ok
+                       //let c = b.b; // can not move out from b which implements the drop trait.
+                       //drop(b) // This is going to happen at the end of the scope.
+}
+
+
+
+
+
+// problem question
+// use std::ops::Deref;
+// #[derive(Debug)]
+// struct A {
+//     a: i32,
+//     b: String,
+// }
+// struct B {
+//     a: i32,
+//     b: String,
+// }
+
+// impl Drop for A {
+//     fn drop(&mut self) {
+//         println!("Dropping");
+//     }
+// }
+
+// fn main() {
+//     let u1 = A {
+//         a: 8,
+//         b: String::from("I cant move out"),
+//     };
+
+//     let u2 = B {
+//         a: 8,
+//         b: String::from("I can move out"),
+//     };
+
+//     let c = u2.b;
+//     let d = u1.b;
+// }

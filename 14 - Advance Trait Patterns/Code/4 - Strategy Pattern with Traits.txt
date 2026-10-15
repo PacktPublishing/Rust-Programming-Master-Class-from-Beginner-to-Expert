@@ -1,0 +1,94 @@
+// -------------------------------------------
+// 	Strategy Pattern with Traits
+// -------------------------------------------
+struct Order {
+    subtotal: f64,
+}
+
+// fn total_naive(subtotal: f64, discount_kind: &str) -> f64 {
+//     if discount_kind == "percentage" {
+//         subtotal - (subtotal * 10.0 / 100.0)
+//     } else if discount_kind == "flat" {
+//         (subtotal - 30.0).max(0.0)
+//     } else {
+//         subtotal
+//     }
+// }
+
+trait DiscountStrategy {
+    fn apply(&self, subtotal: f64) -> f64;
+}
+
+struct NoDiscount;
+
+impl DiscountStrategy for NoDiscount {
+    fn apply(&self, subtotal: f64) -> f64 {
+        subtotal
+    }
+}
+
+struct PercentageDiscount {
+    percentage: f64,
+}
+
+impl DiscountStrategy for PercentageDiscount {
+    fn apply(&self, subtotal: f64) -> f64 {
+        subtotal - (subtotal * self.percentage / 100.0)
+    }
+}
+
+struct FlatDiscount {
+    amount: f64,
+}
+
+impl DiscountStrategy for FlatDiscount {
+    fn apply(&self, subtotal: f64) -> f64 {
+        (subtotal - self.amount).max(0.0)
+    }
+}
+
+struct CheckOut {
+    strategy: Box<dyn DiscountStrategy>,
+}
+
+impl CheckOut {
+    fn new(strategy: Box<dyn DiscountStrategy>) -> Self {
+        CheckOut { strategy }
+    }
+    fn set_strategy(&mut self, strategy: Box<dyn DiscountStrategy>) {
+        self.strategy = strategy;
+    }
+
+    fn total(&self, order: &Order) -> f64 {
+        self.strategy.apply(order.subtotal)
+    }
+}
+
+fn checkout_with_generic<S: DiscountStrategy>(order: &Order, strategy: S) -> f64 {
+    strategy.apply(order.subtotal)
+}
+fn main() {
+    let order = Order { subtotal: 250.0 };
+
+    let mut checkout = CheckOut::new(Box::new(NoDiscount));
+    println!("Total with no discount {}", checkout.total(&order));
+
+    checkout.set_strategy(Box::new(PercentageDiscount { percentage: 10.0 }));
+    println!("total with percentage discount {}", checkout.total(&order));
+
+    checkout.set_strategy(Box::new(FlatDiscount { amount: 30.0 }));
+    println!("Total with flat discount {}", checkout.total(&order));
+
+    let generic_total = checkout_with_generic(&order, PercentageDiscount { percentage: 20.0 });
+    println!("total with generic dispatch {}", generic_total);
+}
+/*
+------------------------------------------------------------------------------------------------------
+Concept/Topic             | Explanation
+--------------------------|---------------------------------------------------------------------------
+Strategy Pattern Basics   | The strategy pattern lets an algorithm vary independently of the code that uses it.
+                          | A common trait defines the shared interface for all interchangeable behaviors.
+                          | Each concrete strategy is a separate type that implements this trait.
+                          | The calling code depends only on the trait, and not on any specific strategy.
+------------------------------------------------------------------------------------------------------
+*/

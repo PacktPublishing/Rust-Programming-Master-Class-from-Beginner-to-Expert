@@ -1,0 +1,93 @@
+// -------------------------------------------------
+// 	        Trait Objects Limitations
+// 			    1. Multiple Traits
+//              2. Associated Types
+//              3. Methods with Generics
+//              4. Functions with no Self Parameter
+// -------------------------------------------------
+
+trait Drawable {
+    fn draw(&self);
+    // fn no_self();
+    // fn no_self() {}
+    fn no_self()
+    where
+        Self: Sized,
+    {
+    }
+
+    fn generic_fn<T>(&self, generic: T)
+    // add sized later on by by writting 
+    // where
+    //     Self: Sized,
+    {
+    }
+}
+
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+struct Square {
+    x: f64,
+    y: f64,
+    side: f64,
+}
+
+impl Drawable for Circle {
+    fn draw(&self) {
+        println!(
+            "Drawing a circle at ({}, {}), radius {}",
+            self.x, self.y, self.radius
+        );
+    }
+    fn no_self() {
+        println!("no_self() for Circle");
+    }
+}
+
+impl Drawable for Square {
+    fn draw(&self) {
+        println!(
+            "Drawing a square at ({}, {}), side {}",
+            self.x, self.y, self.side
+        );
+    }
+    fn no_self() {
+        println!("no_self() for Square");
+    }
+}
+
+fn draw(obj: &dyn Drawable) {
+    // obj.no_self();
+    // (dyn Drawable)::no_self(); //type erased
+
+    Circle::no_self();
+    Square::no_self();
+    //Drawable::no_self(); // not allowed
+}
+fn main() {}
+
+/* 
+------------------------------------------------------------------------------------------------------------------
+Concept / Topic                   | Explanation
+------------------------------------------------------------------------------------------------------------------
+Object Safety and no-self Methods | Trait methods that do not take self cannot be called on trait objects.
+                                  | Such methods are not associated with a concrete implementing type at runtime.
+                                  | This voilates traits object safety. 
+
+VTable Construction Issue         | A vtable stores function pointers tied to concrete types.
+                                  | Methods without self cannot be resolved to a concrete implementation.
+                                  | Therefore they cannot be placed meaningfully in a vtable.
+
+Opting Out with Self: Sized       | Marking a method with where Self: Sized removes it from the vtable.
+                                  | Such methods cannot be called through trait objects.
+                                  | They can still be called using on concrete types.
+
+Relation to Generic Methods       | Generic methods are also not object safe by default.
+                                  | Marking them with Self: Sized opts them out of dynamic dispatch.
+                                  | This preserves object safety for the rest of the trait.
+-------------------------------------------------------------------------------------------------------------------
+ */

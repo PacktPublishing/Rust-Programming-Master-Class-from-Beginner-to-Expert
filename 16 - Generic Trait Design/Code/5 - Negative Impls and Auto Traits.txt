@@ -1,0 +1,60 @@
+// -------------------------------------------
+// 		Auto Traits & Negative Impls
+// -------------------------------------------
+
+use std::{marker::PhantomData, rc::Rc, sync::Arc};
+
+// ---- Auto Traits ----
+#[derive(Debug, Default)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+struct Pair {
+    a: i32,
+    b: i32,
+}
+
+fn is_send<T: Send>() {}
+fn is_sync<T: Sync>() {}
+
+// ---- Send and Sync ----
+struct Counter {
+    count: Rc<i32>,
+}
+
+struct SafeCounter {
+    count: Arc<i32>,
+}
+
+// impl !Send for Counter {}
+// impl !Sync for Counter {}
+
+struct ManuallyNotSend {
+    _marker: PhantomData<Rc<()>>,
+}
+fn main() {
+    is_send::<Pair>();
+    is_sync::<Pair>();
+
+    // is_send::<Counter>();
+    // is_sync::<Counter>();
+
+    is_send::<SafeCounter>();
+    is_sync::<SafeCounter>();
+
+    // is_send::<ManuallyNotSend>();
+}
+/*
+--------------------------------------------------------------------------------------------------
+Concept/Topic         | Explanation
+----------------------|---------------------------------------------------------------------------
+Auto Traits Basics    | An auto trait is automatically implemented by the compiler for a type.
+                      | A type loses an auto trait the moment one of its fields lacks it.
+                      | Ordinary traits like Debug or Default are never handed down this way.
+
+Send and Sync         | A struct made only of Send and Sync fields becomes Send and Sync too.
+                      | Rc is neither Send nor Sync, so it stays confined to a single thread.
+---------------------------------------------------------------------------------------------------
+*/

@@ -1,0 +1,36 @@
+// ------------------------------------------------------
+// 	 Checking type without Downcasting using TypeId
+// ------------------------------------------------------
+use std::any::{Any, TypeId};
+
+fn check_type<T: Any>(value: &T) {
+    if value.type_id() == TypeId::of::<i32>() {
+        println!("The type is i32.");
+    } else if value.type_id() == TypeId::of::<String>() {
+        println!("The type is String.");
+    } else {
+        println!("Unknown type.");
+    }
+}
+fn main() {
+    // Simulating values at runtime
+    let num = 42;
+    let text = String::from("Hello");
+}
+
+
+/* 
+--------------------------------------------------------------------------------------------------------------------------
+Concept/Topic        | Explanation
+---------------------|----------------------------------------------------------------------------------------------------
+Type Inspection Need | In some scenarios, only type identification is needed rather than full downcasting.
+                     | This occurs when handling values generated at runtime such as I/O checking.  
+
+type_id Method       | The type_id method returns a unique identifier for a type at runtime.
+                     | This enables comparing types without downcasting.
+                     | Return values of type_id and TypeId::of::<T> function (standard lib) are matched to determine types.  
+         
+Applications         | Runtime type identification is useful in extensible systems.
+                     | Common use cases include logging, type registries, and event handling.
+--------------------------------------------------------------------------------------------------------------------------
+ */

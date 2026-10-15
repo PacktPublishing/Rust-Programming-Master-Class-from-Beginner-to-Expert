@@ -1,0 +1,97 @@
+/*
+cargo test --lib
+cargo test --lib -- --show-output
+cargo test --lib larger_circle_should_contain_smaller
+cargo test --lib should_not
+cargo test --lib -- --ignored
+ */
+
+mod shapes {
+    pub struct Circle {
+        radius: f32,
+    }
+    impl Circle {
+        pub fn new(radius: f32) -> Circle {
+            println!("Congratulations! Circle is created");
+            Circle { radius }
+        }
+
+        pub fn new_1(radius: f32) -> Result<Circle, String> {
+            if radius >= 0.0 {
+                Ok(Circle { radius })
+            } else {
+                Err(String::from("radius should be positive"))
+            }
+        }
+
+        pub fn new_2(radius: f32) -> Circle {
+            match radius {
+                -10.0..=0.0 => panic!("is between -10.0 and 0.0"),
+                ..=10.0 => panic!("is lesser then -10.0"),
+                _ => Circle { radius },
+            }
+        }
+        pub fn contains(&self, other: &Circle) -> bool {
+            self.radius > other.radius
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn larger_circle_should_contain_smaller() {
+        let larger_circle = shapes::Circle::new(5.0);
+        let smaller_circle = shapes::Circle::new(2.0);
+        assert_eq!(
+            larger_circle.contains(&smaller_circle),
+            true,
+            "Custom failure message"
+        );
+
+        assert_ne!(larger_circle.contains(&smaller_circle), false);
+        assert!(larger_circle.contains(&smaller_circle));
+    }
+
+    #[test]
+    fn smaller_circle_should_not_contain_larger() {
+        let larger_circle = shapes::Circle::new(5.0);
+        let smaller_circle = shapes::Circle::new(2.0);
+        assert_eq!(!smaller_circle.contains(&larger_circle), true);
+    }
+
+    #[test]
+    fn should_not_create_circle() -> Result<(), String> {
+        let some_circle = shapes::Circle::new_1(1.0)?;
+        Ok(())
+    }
+    #[test]
+    #[should_panic(expected = "is lesser then -10.0")]
+    fn should_not_create_and_panic() {
+        let some_circle = shapes::Circle::new_2(-11.0);
+    }
+
+    #[test]
+    #[ignore]
+    fn huge_test() {
+        // code that run for hours
+    }
+}
+
+/*
+----------------------------------------------------------------------------------------------------------------
+Concept/Topic        | Explanation
+----------------------------------------------------------------------------------------------------------------
+Limiting Test Report | - `cargo` test generates separate test reports for each binary crate in the package.
+                     | - Use the the command of `cargo test --lib` to see test reports of library only.
+
+Test Output          | - Passed tests do not normally show output.
+                     | - Use the command `cargo test -- --show-output` to see the output of test function.
+
+Filtering  test      | - A single test can be executed by specifying its full name, e.g., `cargo test test_name`.
+                     | - Using a name pattern such as `cargo test pattern` runs all tests with names containing `pattern`.
+                     | - Adding the #[ignore] attribute to a test function exclude it from testing.
+                     | - Ignored tests can be separately executed using `cargo test -- --ignored`.
+----------------------------------------------------------------------------------------------------------------
+ */

@@ -1,0 +1,31 @@
+// -------------------------------------------
+// 	      Coercion Sites
+// -------------------------------------------
+
+// 3. Function return values
+fn returns_str(s: &String) -> &str {
+    println!("Returning, {s}!");
+    s
+}
+
+fn accepts_str(s: &str) {
+    println!("Hi, {s}!");
+}
+
+struct ContainsStr<'a> {
+    s: &'a str,
+}
+fn main() {
+    // 1. let binding
+    let s: &str;
+    s = &String::from("Some String");
+
+    // 2. Function argument
+    let s = String::from("Some String");
+    accepts_str(&s);
+
+    // 4. Struct field initialization
+    let s = ContainsStr {
+        s: &String::from("Some String"),
+    };
+}

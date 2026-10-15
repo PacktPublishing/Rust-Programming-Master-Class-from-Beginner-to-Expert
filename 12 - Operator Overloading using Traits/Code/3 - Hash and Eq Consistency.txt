@@ -1,0 +1,154 @@
+// -------------------------------------------
+// 		    Hash and Eq Consistency
+// -------------------------------------------
+
+// Contract: if a == b (where == is defined by Eq trait)
+// then hash(a) == hash(b)
+
+use std::{collections::HashSet, hash::Hash};
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+struct UserV1 {
+    id: u32,
+    name: String,
+}
+#[derive(Debug, Eq, Hash)]
+struct UserV2 {
+    id: u32,
+    name: String,
+}
+// a == b but hash(a) != hash(b)
+impl PartialEq for UserV2 {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+#[derive(Debug, Eq)]
+struct UserV3 {
+    id: u32,
+    name: String,
+}
+
+impl PartialEq for UserV3 {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl Hash for UserV3 {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
+}
+fn main() {
+    let mut set: HashSet<UserV1> = HashSet::new();
+
+    let u1 = UserV1 {
+        id: 1,
+        name: String::from("Amir"),
+    };
+
+    let u2 = UserV1 {
+        id: 1,
+        name: String::from("Amir"),
+    };
+
+    let u3 = UserV1 {
+        id: 2,
+        name: String::from("Jamal"),
+    };
+
+    set.insert(u1);
+    set.insert(u2); // duplicate
+    set.insert(u3);
+
+    println!("HashSet Length: {}", set.len());
+
+    // ---- Breaking the contract -----
+    let a = UserV2 {
+        id: 1,
+        name: String::from("Amir"),
+    };
+
+    let b = UserV2 {
+        id: 1,
+        name: String::from("AmirAli"),
+    };
+
+    println!("a == b ? {}", a == b);
+    let mut set: HashSet<UserV2> = HashSet::new();
+    set.insert(a);
+    set.insert(b);
+
+    println!("HashSet Length: {}", set.len());
+
+    // ---- Manually making sure the contract remains valid ------
+    let mut set: HashSet<UserV3> = HashSet::new();
+
+    let a = UserV3 {
+        id: 1,
+        name: String::from("Amir"),
+    };
+
+    let b = UserV3 {
+        id: 1,
+        name: String::from("AmirAli"),
+    };
+
+    println!("(Manual Implementation) a == b ? {}", a == b);
+
+    set.insert(a);
+    set.insert(b);
+    println!("HashSet Length (Manual Implementation): {}", set.len());
+
+    // ----- Contract Voilation by mutating a value after insertion ------
+    let mut user = UserV1 {
+        id: 5,
+        name: String::from("Billal"),
+    };
+
+    let mut set: HashSet<UserV1> = HashSet::new();
+    set.insert(user.clone());
+    println!("Contains before mutation = {}", set.contains(&user));
+
+    user.name.push_str("khan");
+    println!(
+        "Contains after mutation (new name) = {}",
+        set.contains(&user)
+    );
+
+    // ----- Floats canot be used as keys in HashSet / HashMap -----
+    let nan = f64::NAN;
+    println!("NAN == NAN ? {}", nan == nan); // false, f64: Eq is not present
+
+    // let set: HashSet<f64> = HashSet::new();
+    // set.insert(32.0); //not allowed
+}
+
+
+/*
+------------------------------------------------------------------------------------------------------
+Concept/Topic            | Explanation
+-------------------------|---------------------------------------------------------------------------
+Eq-Hash Contract         | Any type used as key in a HashSet / HashMap key, must implement Eq and Hash.
+                         | The contract: if a == b then hash(a) == hash(b).
+                         | The contract is not enforced by compiler.
+
+Derived Eq and Hash      | Derived PartialEq compares all fields,
+                         | Derived Hash also hashes all fields
+                         | No voilation of contract
+
+Breaking the Contract    | Derives Eq and Hash but implements PartialEq manually on some fields.
+                         | Hash are computed based on all fields.
+                         | The contract may break
+                         | (a == b may be true based on Eq) but hash(a) != hash(b)
+
+Fixing it Manually       | Keeps Eq derived but implements PartialEq/Hash manually.
+                         | Rule: fields participating in equality and hash must be same
+
+Mutation After Insertion | Mutating a field after insertion in Hashset leaves it in its old bucket.
+                         | Rule: never mutate a hashed field.
+                         | If mutation is unavaoidable then remove, mutate, then reinsert instead.
+------------------------------------------------------------------------------------------------------
+*/

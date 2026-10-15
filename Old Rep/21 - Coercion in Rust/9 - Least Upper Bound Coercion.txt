@@ -1,0 +1,61 @@
+// -------------------------------------------
+// 	  Least Upper Bound Coercions
+// -------------------------------------------
+
+// A series of if/else branches
+// A series of match arms
+// A series of array elements
+
+use std::{any::Any, ops::Deref};
+
+struct JsonValue {
+    raw: String,
+    is_parsed: bool,
+}
+impl Deref for JsonValue {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.raw
+    }
+}
+
+struct A;
+struct B;
+struct C;
+
+fn main() {
+    // Example 1: Series of if/else branches
+    let condition = true;
+    let result: &str = if condition {
+        &String::from("Hello") // &String -> &str
+    } else {
+        // &JsonValue -> &String -> &str
+        &JsonValue {
+            raw: r#"{"name": "Alice", "age": 30}"#.to_string(),
+            is_parsed: false,
+        }
+    };
+
+    // Example 2: Series of match arms
+    let value = 3;
+    let a = &A;
+    let b = &B;
+    let c = &C;
+
+    let result: &dyn Any = match value {
+        1 => a,
+        2 => b,
+        _ => c,
+    };
+
+    // Example 3: Series of array elements
+    let string_array = vec![
+        "Rust",
+        &String::from("Rust"),
+        &JsonValue {
+            raw: r#"{"name": "Alice", "age": 30}"#.to_string(),
+            is_parsed: false,
+        },
+    ];
+}

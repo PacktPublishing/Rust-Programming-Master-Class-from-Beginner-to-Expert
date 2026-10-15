@@ -1,0 +1,91 @@
+// -------------------------------------------
+// 		Where Clauses vs Inline Bounds
+// -------------------------------------------
+
+use std::fmt::{Debug, Display};
+
+fn largest_inline<T: PartialOrd + Copy>(list: &[T]) -> T {
+    let mut largest = list[0];
+    for &item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+    largest
+}
+
+fn largest_where<T>(list: &[T]) -> T
+where
+    T: PartialOrd + Copy,
+{
+    let mut largest = list[0];
+    for &item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+    largest
+}
+
+struct Report<T: Display + Clone, U: Debug + Clone> {
+    title: T,
+    body: U,
+}
+
+#[derive(Debug)]
+struct ReportClean<T, U>
+where
+    T: Display + Clone,
+    U: Debug + Clone,
+{
+    title: T,
+    body: U,
+}
+
+impl<T, U> ReportClean<T, U>
+where
+    T: Display + Clone,
+    U: Debug + Clone,
+{
+    fn describe(&self) {
+        println!("Title: {}", self.title);
+        println!("Body: {:?}", self.body);
+    }
+}
+fn print_all<T>(items: Vec<T>)
+where
+    Vec<T>: IntoIterator<Item = T>,
+    T: Display,
+{
+    for item in items {
+        println!("{item}");
+    }
+}
+fn main() {
+    let numbers = vec![34, 50, 25, 100, 65];
+    println!("Largest (inline): {}", largest_inline(&numbers));
+    println!("Largest (where): {}", largest_where(&numbers));
+
+    print_all(vec!["a", "b", "c"]);
+}
+
+
+/*
+------------------------------------------------------------------------------------------------------
+Concept/Topic            | Explanation
+-------------------------|----------------------------------------------------------------------------
+Inline Trait Bounds      | Bounds are written directly after the generic parameter using colon syntax.
+                         | Multiple bounds on one parameter are combined with the + operator.
+                         | Works well for a single generic parameter with one or two simple bounds.
+                         | Becomes hard to read once several generics or bounds are involved.
+
+Where Clauses            | Bounds are moved out of the signature into a where block before the body.
+                         | Greatly improves readability with multiple generics or multiple bounds.
+                         | Each bound can be placed on its own line for clarity.
+                         | Can also be attached to impl blocks, not just functions and structs.
+
+Bounds Beyond Bare Types | Where clauses can constrain expressions.
+                         | For example Vec<T>: IntoIterator<Item = T> cannot be written inline.
+                         | This makes where clauses strictly more expressive than inline bounds.
+------------------------------------------------------------------------------------------------------
+*/

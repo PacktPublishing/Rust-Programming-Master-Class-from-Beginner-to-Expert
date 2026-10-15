@@ -1,0 +1,22 @@
+// -------------------------------------------
+// 	      Coercion
+// -------------------------------------------
+
+// Reference Coercion
+// &mut T -> &T
+// &T -> &mut T // not valid
+
+fn accepts_str(s: &String) -> &String {
+    println!("{s}");
+    s
+}
+fn main() {
+    let mut s = String::from("Some String");
+    let mut_ref = &mut s;
+    let s1 = accepts_str(mut_ref); // &mut String -> &String
+
+    // mut_ref.push('h');
+    println!("mut_ref: {}, immut_ref: {}", mut_ref, s1);
+
+    // reference coercion != reference casting
+}

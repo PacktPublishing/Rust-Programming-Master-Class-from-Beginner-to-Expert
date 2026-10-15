@@ -1,0 +1,42 @@
+// -------------------------------------------
+// 	        Drop Order and Self Referencing
+// -------------------------------------------
+struct A;
+struct B;
+impl Drop for A {
+    fn drop(&mut self) {
+        println!("Dropping A");
+    }
+}
+impl Drop for B {
+    fn drop(&mut self) {
+        println!("Dropping B");
+    }
+}
+struct Container {
+    a: A,
+    b: B,
+}
+
+struct SelfRef<'a> {
+    s: String,
+    s_ptr: &'a String,
+}
+fn main() {
+    // let a = A;
+    // let b = B;
+    // let c = Container { a: a, b: b };
+    // let tuple = (c, &c);
+    // let mut tuple = (String::from(""), &tuple.0);
+
+    let text = String::from("Hi");
+    // let linked_str = SelfRef {
+    //     s: String::from("Hi"),
+    //     s_ptr: &linke_str.s,
+    // };
+
+    let x = 5;
+    let mut tuple = (x, &x);
+    tuple.0 = 20;
+    println!("x is: {x}, tuple.0: {}, tuple.1: {}", tuple.0, tuple.1);
+}

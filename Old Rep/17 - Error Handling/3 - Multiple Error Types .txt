@@ -1,0 +1,64 @@
+// -------------------------------------------
+// 	        Multiple Error Types
+// -------------------------------------------
+
+// Approach 1: With map_err()
+fn temperature_from_sensor(sensor_id: u32) -> Result<f64, u8> {
+    match sensor_id {
+        1 => Ok(25.0),
+        2 => Ok(30.5),
+        _ => Err(42),
+    }
+}
+
+fn convert_to_fahrenheit(celsius: f64) -> Result<f64, String> {
+    if celsius < -100.0 || celsius > 100.0 {
+        Err(String::from("Out of range"))
+    } else {
+        Ok(celsius * 1.8 + 32.0)
+    }
+}
+enum TemperatureError {
+    Sensor(u8),
+    Conversion(String),
+}
+
+fn get_temperature_fahrenheit(sensor_id: u32) -> Result<f64, TemperatureError> {
+    let temp_celsius = temperature_from_sensor(sensor_id).map_err(TemperatureError::Sensor)?;
+    let temp_fahrenheit =
+        convert_to_fahrenheit(temp_celsius).map_err(TemperatureError::Conversion)?;
+    Ok(temp_fahrenheit)
+}
+fn main() {}
+
+// Approach 2:
+// fn temperature_from_sensor(sensor_id: u32) -> Result<f64, TemperatureError> {
+//     match sensor_id {
+//         1 => Ok(25.0),
+//         2 => Ok(30.5),
+//         _ => Err(TemperatureError::Sensor(42)),
+//     }
+// }
+
+// fn convert_to_fahrenheit(celsius: f64) -> Result<f64, TemperatureError> {
+//     if celsius < -100.0 || celsius > 100.0 {
+//         Err(TemperatureError::Conversion(String::from("Out of range")))
+//     } else {
+//         Ok(celsius * 1.8 + 32.0)
+//     }
+// }
+// enum TemperatureError {
+//     Sensor(u8),
+//     Conversion(String),
+// }
+
+// fn get_temperature_fahrenheit(sensor_id: u32) -> Result<f64, TemperatureError> {
+//     let temp_celsius = temperature_from_sensor(sensor_id)?;
+//     let temp_fahrenheit = convert_to_fahrenheit(temp_celsius)?;
+//     Ok(temp_fahrenheit)
+// }
+// fn main() {}
+// // Recap: If ? is used multiple times in function, all the error variants should have the same type.
+
+
+

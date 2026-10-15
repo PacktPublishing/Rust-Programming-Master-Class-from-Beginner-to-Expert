@@ -1,0 +1,30 @@
+// -------------------------------------------
+// 	      Referencing in Compound Data Types
+// -------------------------------------------
+
+fn main() {
+    // Referencing in Tuples
+    let mut tuple = (String::from("Rust"), String::from("Lang"));
+    let mut_ref1 = &mut tuple.0;
+    let immut_ref1 = &tuple.1;
+    println!("{} {}", mut_ref1, immut_ref1);
+
+    let mut_ref2 = &mut tuple.1;
+    println!("{} {}", mut_ref1, mut_ref2);
+
+    // Referecning in Vectors
+    let mut data = vec![10, 20, 30, 40, 50, 60];
+    // let mut_ref1 = &mut data[2];
+    // let immut_ref1 = &mut data[4];
+    // println!("{} {}", mut_ref1, immut_ref1);
+
+    let (a, b) = data.split_at_mut(2); // a = [10, 20],  b = [30, 40, 50, 60]
+    let (c, d) = b.split_at_mut(2); // c = [30, 40], d = [50, 60]
+
+    a[0] += 1;
+    b[0] += 1;
+    println!("a: {:?}, b: {:?}", a, b);
+}
+
+// Tuples                                            || Vectors
+// Borrowing rules are applied on per element basis  || Per vector basis

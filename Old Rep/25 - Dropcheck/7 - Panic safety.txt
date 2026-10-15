@@ -1,0 +1,36 @@
+// -------------------------------------------
+// 	        Panic Safety
+// -------------------------------------------
+
+use std::panic;
+
+struct BadResource;
+impl Drop for BadResource {
+    fn drop(&mut self) {
+        println!("Dropping BadResource");
+
+        let result = panic::catch_unwind(|| {
+            panic!("Panic in Drop");
+        });
+
+        match result {
+            Ok(_) => println!("Closure completed successfully"),
+            Err(e) => println!("Caught a panic but resource cleaned up"),
+        }
+    }
+}
+fn main() {
+    let _br = BadResource;
+    panic!("Main function panicked!");
+    // let result = panic::catch_unwind(|| {
+    //     let x = _br;
+    //     panic!("Main function panicked!");
+    //     println!("This will not execute");
+    // });
+
+    // match result {
+    //     Ok(_) => println!("Code ran fine"),
+    //     Err(e) => println!("Caught a panic"),
+    // }
+    // println!("This will execute");
+}

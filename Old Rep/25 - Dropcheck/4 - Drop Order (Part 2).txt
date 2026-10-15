@@ -1,0 +1,51 @@
+// -------------------------------------------
+// 	        Drop Order (Part 2)
+// -------------------------------------------
+
+struct A {
+    value: String,
+}
+struct B;
+
+impl Drop for A {
+    fn drop(&mut self) {
+        println!("Dropping value of type A with value {}", self.value);
+    }
+}
+
+impl Drop for B {
+    fn drop(&mut self) {
+        println!("Dropping value of type B");
+    }
+}
+
+trait T {}
+impl T for A {}
+impl T for B {}
+fn main() {
+    // let x = (A {}, B {});
+    // let (a, b) = (A {}, B {});
+    // let x = (&A {}, &B {});
+
+    // let v: Vec<&dyn T> = vec![&A {}, &B {}];
+
+    let vec = vec![
+        A {
+            value: String::from("First"),
+        },
+        A {
+            value: String::from("Second"),
+        },
+        A {
+            value: String::from("Third"),
+        },
+    ];
+
+    // Key Rules Recap:
+
+    // Data Type                        || Drop Order
+    // Owned data in tuples/structs     || Drop in declaration order
+    // Owned data in vectors            || Drop in insertion order
+    // Local variables                  || Drop in reverse declaration order
+    // References                       || Don't affect the drop order of the referenced data
+}

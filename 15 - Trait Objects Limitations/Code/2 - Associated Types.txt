@@ -1,0 +1,89 @@
+// -------------------------------------------
+// 	        Trait Objects Limitations
+// 			    1. Multiple Traits
+//          			2. Associated Types
+// -------------------------------------------
+
+trait Drawable {
+    type SomeType;
+    fn draw(&self);
+}
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+struct Square {
+    x: f64,
+    y: f64,
+    side: f64,
+}
+impl Drawable for Circle {
+    type SomeType = f64;
+    fn draw(&self) {
+        println!(
+            "Drawing a circle at ({}, {}), radius {}",
+            self.x, self.y, self.radius
+        );
+    }
+}
+impl Drawable for Square {
+    type SomeType = f32;
+    fn draw(&self) {
+        println!(
+            "Drawing a square at ({}, {}), side {}",
+            self.x, self.y, self.side
+        );
+    }
+}
+
+fn draw(obj: &dyn Drawable<SomeType = f64>) {
+    obj.draw();
+}
+
+fn draw_1(obj: &dyn Drawable<SomeType = f32>) {
+    obj.draw();
+}
+fn main() {
+    let circle = Circle {
+        x: 5.0,
+        y: 6.0,
+        radius: 6.0,
+    };
+
+    let square = Square {
+        x: 2.0,
+        y: 3.0,
+        side: 6.0,
+    };
+
+    draw(&circle);
+    draw_1(&square);
+}
+
+
+/* 
+--------------------------------------------------------------------------------------------------
+Concept / Topic           | Explanation
+--------------------------|-----------------------------------------------------------------------
+Associated Types and      | Associated types must be known at compile time.
+Trait Objects             | Trait objects rely on dynamic dispatch resolved at runtime.
+                          | This mismatch makes associated types incompatible with trait objects.
+
+Reasons of Restriction    | A trait object requires all associated types to be fully specified.
+                          | The compiler cannot infer an associated type for a trait object.
+                          | Associated type information available from the trait object.
+
+VTable Limitation         | A vtable stores function pointers, not type information.
+                          | Associated types do not have runtime representations.
+                          | Therefore they cannot be captured implicitly in a trait object.
+
+Explicit Associated Types | Trait object can be created for a trait if the associated type is fixed.
+                          | The associated type becomes part of the trait object’s type.
+                          | A dedicated vtable is generated for that concrete associated type.
+
+Practical Drawbacks       | Different implementations may use different associated types.
+                          | Each associated type requires a separate function definition.
+                          | This approach resembles static dispatch and reduces flexibility.
+-----------------------------------------------------------------------------------------------------
+ */

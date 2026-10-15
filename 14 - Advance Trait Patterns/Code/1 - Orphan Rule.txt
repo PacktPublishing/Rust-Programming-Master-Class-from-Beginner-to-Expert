@@ -1,0 +1,76 @@
+x// -------------------------------------------
+// 	        Orphan Rule
+// -------------------------------------------
+
+use rust_course::{Addition, Point, Printable};
+
+struct PointWrapper(Point);
+impl Printable for PointWrapper {
+    fn print(&self) {
+        println!("x-axis: {}, y-axis: {}", self.0.x, self.0.y);
+    }
+}
+
+// impl Addition<Point, Point> for Point {
+//     fn add(self, rhs: Point) -> Point {
+//         Point {
+//             x: self.x + rhs.x,
+//             y: self.y + rhs.y,
+//         }
+//     }
+// }
+
+struct Line {
+    start: Point,
+    end: Point,
+}
+
+impl Addition<Point, Line> for Point {
+    fn add(self, rhs: Point) -> Line {
+        Line {
+            start: self,
+            end: rhs,
+        }
+    }
+}
+
+impl Addition<i32, i32> for i32 {}
+fn main() {}
+
+
+
+
+// Code in library 
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+
+pub trait Printable {
+    fn print(&self);
+}
+
+pub trait Addition<T, U> {
+    fn add(self, rhs: T) -> U;
+}
+
+
+/* 
+--------------------------------------------------------------------------------------------------------------
+Concept / Topic            | Explanation
+---------------------------|----------------------------------------------------------------------------------
+Orphan Rule                | Either the trait or the type must be defined in the current crate.
+                           | This prevents conflicting implementations across crates.
+                           | Multiple crates could implement the same trait for the same type.
+                                  
+Workout with Orphan Rule   | A locally defined wrapper type can be used to satisfy the orphan rule.
+                           | Implementing a trait for the wrapper is allowed because the type is local.
+
+Orphan Rule with Generics  | For generic trait implementations, at least one involved type must be local.
+                           | The presence of a local type satisfies the orphan rule.
+
+Non-Local Types Limitation | Traits cannot be implemented for fully non-local types like primitives.
+                           | Types such as i32 are defined in the standard library.
+                           | Implementations involving only non-local types are rejected.
+-------------------------------------------------------------------------------------------------------------
+ */

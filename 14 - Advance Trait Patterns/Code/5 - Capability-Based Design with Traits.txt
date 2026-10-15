@@ -1,0 +1,80 @@
+// -------------------------------------------
+// 	    Capability-Based Design with Traits
+// -------------------------------------------
+
+struct Document {
+    content: String,
+}
+
+trait CanRead {}
+trait CanWrite {}
+
+struct GuestUser;
+struct EditorUser;
+struct AdminUser;
+
+impl CanRead for GuestUser {}
+
+impl CanRead for EditorUser {}
+impl CanWrite for EditorUser {}
+
+impl CanRead for AdminUser {}
+impl CanWrite for AdminUser {}
+
+fn read_document<U: CanRead>(_user: &U, doc: &Document) {
+    println!("Reading Document: {}", doc.content);
+}
+
+fn write_document<U: CanWrite>(_user: &U, doc: &mut Document, new_content: &str) {
+    doc.content = String::from(new_content);
+    println!("Document Updated to: {}", doc.content);
+}
+
+mod sealed {
+    pub trait Sealed {}
+}
+
+trait CanDelete: sealed::Sealed {}
+impl sealed::Sealed for AdminUser {}
+impl CanDelete for AdminUser {}
+
+fn delete_document<U: CanDelete>(_user: &U, doc: Document) {
+    println!("Deleting document: {}", doc.content);
+}
+fn main() {
+    let guest = GuestUser;
+    let editor = EditorUser;
+    let admin = AdminUser;
+
+    let mut doc = Document {
+        content: String::from("Initial Contents"),
+    };
+
+    read_document(&guest, &doc);
+    read_document(&editor, &doc);
+    read_document(&admin, &doc);
+
+    write_document(&editor, &mut doc, "Updated by editor");
+    write_document(&admin, &mut doc, "Updated by admin");
+
+    // write_document(&guest, &mut doc, "Updated by guest");
+
+    delete_document(&AdminUser, doc);
+    // delete_document(&editor, doc);
+}
+
+/*
+------------------------------------------------------------------------------------------------------
+Concept/Topic             | Explanation
+--------------------------|---------------------------------------------------------------------------
+Capability Stategy        | Capability-based design uses traits to express operations a type may perform.
+                          | A capability trait is usually a marker trait with no methods.
+                          | A type gains a capability only when it explicitly implements the trait for it.
+
+Enforcing Capabilities    | Functions declare the capability they require as a trait bound on a generic.
+via Generics              | This moves permission checks from runtime to compile time.
+                          | Passing a type that lacks the required capability causes a compile error.
+
+Sealing Capability Traits | This keeps the set of types holding a sensitive capability fixed and auditable.
+------------------------------------------------------------------------------------------------------
+*/

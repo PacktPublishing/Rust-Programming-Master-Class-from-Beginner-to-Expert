@@ -1,0 +1,49 @@
+// -------------------------------------------
+// 	        Downcasting (use case)
+// -------------------------------------------
+use std::any::Any;
+trait Event: Any {}
+
+struct MouseEvent {
+    x: i32,
+    y: i32,
+}
+
+struct KeyBoardEvent {
+    key: char,
+}
+
+impl Event for MouseEvent {}
+impl Event for KeyBoardEvent {}
+
+fn handle_event(event: &dyn Any) {
+    if let Some(mouse) = event.downcast_ref::<MouseEvent>() {
+        println!("Mouse event at ({}, {})", mouse.x, mouse.y);
+    } else if let Some(keyboard) = event.downcast_ref::<KeyBoardEvent>() {
+        println!("Keyboard event, with key pressed: {}", keyboard.key);
+    } else {
+        println!("Unknown event");
+    }
+}
+fn main() {
+    let mouse_event = MouseEvent { x: 100, y: 200 };
+    let keyboard_event = KeyBoardEvent { key: 'A' };
+
+    handle_event(&mouse_event);
+    handle_event(&keyboard_event);
+}
+
+/*
+-------------------------------------------------------------------------------------------------------
+Concept/Topic         | Explanation
+----------------------|--------------------------------------------------------------------------------
+Downcasting Use Case  | Different events may share common behavior but distinct contextual data.
+                      | Mouse events -> positional data, keyboard events -> key information.
+                      | Dynamic event handling requires identification of concrete types at runtime.
+                      | This cannot be achieved through static dispatch alone.
+
+Downcasting           | The downcasting using Any trait enables runtime type inspection of events.
+                      | The downcast_ref enables checking of events types.
+                      | Code branches can be introduced based on downcasting to properly handle event.
+-------------------------------------------------------------------------------------------------------
+*/

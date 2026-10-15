@@ -1,0 +1,77 @@
+// -------------------------------------------------
+// 		Debugging Iterator Pipelines
+// -------------------------------------------------
+
+fn main() {
+    let inputs = vec![" 23 ", "NaN", "", "42", "abc", "35"];
+
+    let avg = inputs
+        .into_iter()
+        .map(str::trim)
+        .filter(|s| !s.is_empty() && s.chars().all(char::is_numeric))
+        .map(|s| s.parse::<u32>().unwrap())
+        .fold((0, 0), |(sum, count), x| (sum + x, count + 1));
+
+    let average = avg.0 as f64 / avg.1 as f64;
+    println!("Average age: {:.2}", average);
+
+    // Approach 1: Break the chain to inspect each stage manually
+    let inputs = vec![" 23 ", "NaN", "", "42", "abc", "35"];
+
+    let stage1: Vec<_> = inputs.into_iter().collect();
+    println!("Stage 1 (raw): {:?}", stage1);
+
+    let stage2: Vec<_> = stage1.into_iter().map(str::trim).collect();
+    println!("Stage 2 (trimmed): {:?}", stage2);
+
+    let stage3: Vec<_> = stage2
+        .into_iter()
+        .filter(|s| !s.is_empty() && s.chars().all(char::is_numeric))
+        .collect();
+    println!("Stage 3 (filtered valid) {:?}", stage3);
+
+    let stage4: Vec<u32> = stage3
+        .into_iter()
+        .map(|s| s.parse::<u32>().unwrap())
+        .collect();
+    println!("Stage 4 (parsed ints): {:?}", stage4);
+
+    let stage5 = stage4
+        .iter()
+        .fold((0, 0), |(sum, count), x| (sum + x, count + 1));
+
+    let average = stage5.0 as f64 / stage5.1 as f64;
+    println!("Average age: {:.2}", average);
+
+    // Approach 2: use of inspect
+
+    let inputs = vec![" 23 ", "NaN", "", "42", "abc", "35"];
+    let avg = inputs
+        .into_iter()
+        .inspect(|s| println!("[raw] {:?}", s))
+        .map(str::trim)
+        .inspect(|s| println!("[trimmed] {:?}", s))
+        .filter(|s| !s.is_empty() && s.chars().all(char::is_numeric))
+        .inspect(|s| println!("[valid] {:?}", s))
+        .map(|s| s.parse::<u32>().unwrap())
+        .inspect(|s| println!("[prased] {:?}", s))
+        .fold((0, 0), |(sum, count), x| (sum + x, count + 1));
+
+    let average = avg.0 as f64 / avg.1 as f64;
+    println!("Average age: {:.2}", average);
+}
+
+
+/*
+-----------------------------------------------------------------------------------------
+Without inspect()                           | With inspect()
+-----------------------------------------------------------------------------------------
+Analysis is on per stage basis              | Analysis is on per element basis
+
+Requires alot of intermediate setup         | Requires little to no setup
+
+Requires breaking the chain                 | Inline debugging without disrupting chain
+and printing manually
+-----------------------------------------------------------------------------------------
+
+*/

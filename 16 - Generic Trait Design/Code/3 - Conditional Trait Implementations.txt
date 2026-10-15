@@ -1,0 +1,84 @@
+// -------------------------------------------
+// 	  Conditional and Blanket Implementations
+// -------------------------------------------
+
+// Conditional Implementation
+
+use std::fmt::Display;
+
+struct Pair<T> {
+    first: T,
+    second: T,
+}
+
+impl<T> Pair<T> {
+    fn new(first: T, second: T) -> Self {
+        Self { first, second }
+    }
+}
+
+impl<T: Display + PartialOrd> Pair<T> {
+    fn show_largest(&self) {
+        if self.first >= self.second {
+            println!("Largest number is {}", self.first)
+        } else {
+            println!("Largest number is {}", self.second)
+        }
+    }
+}
+
+// Blanket Implementations
+trait Describe {
+    fn describe(&self) -> String;
+}
+
+impl<T: Display> Describe for T {
+    fn describe(&self) -> String {
+        format!("Value = {}", self)
+    }
+}
+
+struct Product {
+    name: String,
+    price: f32,
+}
+
+impl Display for Product {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} (${:.2})", self.name, self.price)
+    }
+}
+fn main() {
+    let numbers = Pair::new(10, 25);
+    numbers.show_largest();
+
+    let words = Pair::new(String::from("apple"), String::from("banana"));
+    words.show_largest();
+
+    let laptop = Product {
+        name: String::from("laptop"),
+        price: 999.99,
+    };
+
+    println!("{}", laptop.describe());
+    println!("{}", 42.describe());
+    println!("{}", "hello".describe());
+}
+
+/*
+------------------------------------------------------------------------------------------------------
+Concept/Topic              | Explanation
+----------------------------|--------------------------------------------------------------------------
+Conditional Implementation | A generic struct can have an impl block with no bounds.
+                           | It may have a conditional implemenation for types satisfying some bounds.
+                           | Methods in conditional impls are accessible to types satisfying bounds.
+
+The Gap it Leaves          | The conditional implementation does not help if
+                           |   - Behaviour extention is desired in other non wrapped types.
+                           | Each struct would need its own repeated impl block.
+
+Blanket Implementations    | impl<T: Bound> Trait for T implements a trait for types satisfying bound.
+                           | The standard library relies on this heavily.
+                           | Avoids writing a repetitive impl block for individual type.
+------------------------------------------------------------------------------------------------------
+*/

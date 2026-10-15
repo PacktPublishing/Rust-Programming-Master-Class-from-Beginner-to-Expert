@@ -1,0 +1,29 @@
+// -------------------------------------------
+// 	 Forcing Variables to Use a Reference
+// -------------------------------------------
+
+fn some_fn(ref s: String) {
+    let r = s;
+}
+fn main() {
+    let tuple = (String::from("Nouman"), String::from("Azam"));
+
+    let (ref first_name, last_name) = tuple;
+
+    // ref variable: SomeType
+    let ref x: i32 = 5;
+    let s1 = String::from("");
+    let ref s = s1;
+
+    some_fn(s1);
+    // println!("{s1}");
+
+    // Simple reference (&)                        || ref
+    // 1. Takes part in pattern matching           || 1. Does not take part in pattern matching
+    // when used in the left side                  ||
+    // of generalized variable declaration syntax  ||
+
+    // 2. Preferred for explicit references        || 2. Syntax requires it to achieve
+    //                                             || desired behavior.
+    // 3. Don't change ownership in fn parameters  || 3. Can change ownership in fn parameters
+}

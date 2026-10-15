@@ -1,0 +1,35 @@
+// -------------------------------------------
+// 	        - Casting between references
+//          - Assignment of references
+// -------------------------------------------
+
+fn main() {
+    let x = 5;
+    let y = x as f32;
+
+    // Casting immutable reference -> mutable reference (not allowed).
+    // let data = 42;
+    // let immutable_ref = &data;
+    // let mutable_ref = immutable_ref as &mut i32;
+
+    // Casting mutable reference -> immutable reference (allowed).
+    let mut data = 42;
+    let mutable_ref = &mut data;
+    let immutable_ref = mutable_ref as &i32;
+
+    /*
+    Immutable to mutable (not allowed)        ||  Mutable to immutable (Allowed)
+    - Since many immutable can coexist        ||  - There is a single mutable reference at any time
+      therefore,                              ||    therefore,
+      changing one of them to mutable         ||    changing it to immutable does not lead to voilation
+      may lead to coexistence  of mutable     ||
+      and immutable (voilation)               ||
+    */
+
+    // Assignment of references
+    let mut str = String::from("");
+    let ref_str_1 = &str;
+    // let ref_str_1 = &mut str;  will give an error
+    let ref_str_2 = ref_str_1;
+    println!("{ref_str_1}");
+}

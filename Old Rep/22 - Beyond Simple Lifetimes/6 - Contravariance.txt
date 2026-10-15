@@ -1,0 +1,36 @@
+// -------------------------------------------
+// 	        Contravariance
+//
+//          Prereqs: Lifetime Elision, Subtyping
+// -------------------------------------------
+
+// Subtype
+// 'x: 'y  => T<'x> relationship with T<'y>?
+
+// Types of variance
+//      1. Covariance: If 'x: 'y then T<'x>: T<'y>
+//      2. Contravariance: if 'x: 'y  then T<'y>: T<'x>
+//                         if 'static: 'a then 'a T: 'static T, assume T = fn(&str)
+//                         fn(&'a str): fn(&'static str)
+//      3. Invariance
+
+// function expects:
+// fn(fn(&'a str))
+
+// However, we provided:
+// fn(fn(&'static str))
+
+fn str_fn(f: fn(&'static str)) {}
+
+fn accepts_str_1(s: &'static str) {}
+fn accepts_str_2(s: &str) {}
+fn main() {
+    str_fn(accepts_str_1);
+    str_fn(accepts_str_2);
+
+    let mut x: fn(&str) = accepts_str_2; // fn(&'a str)
+    let mut y: fn(&'static str) = accepts_str_1; // fn(&'static str)
+
+    //x = y;
+    y = x;
+}

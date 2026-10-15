@@ -1,0 +1,23 @@
+// -------------------------------------------
+// 	        Implied Bounds
+// -------------------------------------------
+
+struct GenericWithLifetime<'a, T> {
+    b: &'a T, // implied T: 'a   // 'a: 'b => 'a outlives 'b and now T: 'a => T outlives 'a
+}
+
+fn lifetime_bound_implied_fn<'a, T>(x: GenericWithLifetime<T>) {} // implied T: 'a
+
+fn lifetime_bound_implied_fn_1<'b, U>(x: &'b U) {} // implied U: 'b
+
+fn requires_lifetime_bound<'a, T>() {} // bound not not implied
+
+trait Trait<'a, T: 'a> {}
+//impl<'a, T> Trait<'a, T> for () {} // not implied T: 'a
+
+// This compiles as `T: 'a` is implied by the self type `&'a T`.
+impl<'a, T> Trait<'a, T> for &'a T {} // implied T: 'a
+
+struct A<T: Clone>(T);
+fn doesnt_specify_T_Clone<T>(x: A<T>) {} // add the lifetime bound of T: Clone
+fn main() {}

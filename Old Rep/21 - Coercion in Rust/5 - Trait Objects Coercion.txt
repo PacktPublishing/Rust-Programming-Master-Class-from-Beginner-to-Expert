@@ -1,0 +1,52 @@
+// -------------------------------------------
+// 	      Coercion
+// -------------------------------------------
+
+// Trait Objects Coercion
+// &T -> &dyn Trait // T implements Trait
+
+trait Command {
+    fn execute(&self);
+}
+
+struct TurnOnLight {
+    room: String,
+}
+
+struct AdjustThermostat {
+    temperature: f32,
+}
+
+impl Command for TurnOnLight {
+    fn execute(&self) {
+        println!("Turning on lights in the {}", self.room);
+    }
+}
+
+impl Command for AdjustThermostat {
+    fn execute(&self) {
+        println!("Setting thermostat to {}C", self.temperature);
+    }
+}
+
+fn execute_command(command: &dyn Command) {
+    command.execute();
+}
+fn main() {
+    let light_cmd = TurnOnLight {
+        room: String::from("Living Room"),
+    };
+
+    let thermostat_cmd = AdjustThermostat { temperature: 22.5 };
+
+    // Trait object coercion: &T -> &dyn Command
+    execute_command(&light_cmd); // &light_cmd -> &dyn Command
+    execute_command(&thermostat_cmd); // &thermostat_cmd -> &dyn Command
+
+    let commands_queue: Vec<&dyn Command> = vec![&light_cmd, &thermostat_cmd];
+}
+
+/* Benefits of trait object coercion
+    - Flexibility in APIs:
+    - Reduces Code Duplication:
+*/

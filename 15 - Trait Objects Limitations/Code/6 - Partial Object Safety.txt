@@ -1,0 +1,95 @@
+// -------------------------------------------
+// 	        Partial Object Safety
+// -------------------------------------------
+
+trait Drawable {
+    fn draw(&self);
+    fn scale<T>(&mut self, factor: T)
+    where
+        Self: Sized,
+        T: Into<f64>;
+}
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+struct Square {
+    x: f64,
+    y: f64,
+    side: f64,
+}
+impl Drawable for Circle {
+    fn draw(&self) {
+        println!(
+            "Drawing a circle at ({}, {}), radius {}",
+            self.x, self.y, self.radius
+        );
+    }
+    fn scale<T>(&mut self, factor: T)
+    where
+        Self: Sized,
+        T: Into<f64>,
+    {
+        let factor = factor.into();
+        self.radius *= factor;
+        println!("Scaled circle to radius {}", self.radius);
+    }
+}
+impl Drawable for Square {
+    fn draw(&self) {
+        println!(
+            "Drawing a square at ({}, {}), side {}",
+            self.x, self.y, self.side
+        );
+    }
+    fn scale<T>(&mut self, factor: T)
+    where
+        Self: Sized,
+        T: Into<f64>,
+    {
+        let factor = factor.into();
+        self.side *= factor;
+        println!("Scaled square to side {}", self.side);
+    }
+}
+fn main() {
+    let mut circle = Circle {
+        x: 0.0,
+        y: 0.0,
+        radius: 5.0,
+    };
+
+    let mut square = Square {
+        x: 10.0,
+        y: 10.0,
+        side: 2.0,
+    };
+
+    let mut shapes: Vec<&mut dyn Drawable> = vec![&mut circle, &mut square];
+
+    shapes[0].draw();
+    shapes[1].draw();
+
+    // shapes[0].scale(2);
+    // shapes[1].scale(3);
+
+    circle.scale(2);
+    square.scale(1.5);
+}
+
+
+
+/* 
+-------------------------------------------------------------------------------------------------------------
+Concept / Topic          | Explanation
+-------------------------|-----------------------------------------------------------------------------------
+Generic Methods          | Methods using generics are not object safe.
+and Object Safety        | They cannot be called through trait objects.
+                                   
+Marking Methods as Sized | Partial object safety is achieved by marking some methods in a trait as Sized. 
+                         | Generic Methods are marked as Sized in a trait, if we inted to create trait objects.
+                         | The methods marked as Sized, remains usable on concrete types.
+                         | Trait objects cannot access methods which are Sized.
+---------------------------------------------------------------------------------------------------------------
+*/

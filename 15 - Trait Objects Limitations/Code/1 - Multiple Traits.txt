@@ -1,0 +1,99 @@
+// -------------------------------------------
+// 	        Trait Objects Limitations
+// 			    1. Multiple Traits
+// -------------------------------------------
+
+trait Drawable {
+    fn draw(&self);
+}
+
+trait Movable {
+    fn move_to(&mut self, x: f64, y: f64);
+}
+
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+struct Square {
+    x: f64,
+    y: f64,
+    side: f64,
+}
+
+impl Drawable for Circle {
+    fn draw(&self) {
+        println!(
+            "Drawing a circle at ({}, {}), radius {}",
+            self.x, self.y, self.radius
+        );
+    }
+}
+
+impl Movable for Circle {
+    fn move_to(&mut self, x: f64, y: f64) {
+        self.x = x;
+        self.y = y;
+        println!("Moved circle to ({}, {})", self.x, self.y);
+    }
+}
+
+impl Drawable for Square {
+    fn draw(&self) {
+        println!(
+            "Drawing a square at ({}, {}), side {}",
+            self.x, self.y, self.side
+        );
+    }
+}
+
+impl Movable for Square {
+    fn move_to(&mut self, x: f64, y: f64) {
+        self.x = x;
+        self.y = y;
+        println!("Moved square to ({}, {})", self.x, self.y);
+    }
+}
+
+// trait A {}
+// impl A for Circle {}
+// impl A for Square {}
+trait DrawableMovable: Drawable + Movable {}
+impl DrawableMovable for Circle {}
+impl DrawableMovable for Square {}
+
+// vtable 1: Drawable for Circle
+// vtable 2: Drawable for Square
+// vtable 3: Movable for Circle
+// vtable 4: Movable for Square
+
+// vtable 1: DrawableMovable for Circle
+// vtable 2: DrawableMovable for Square
+
+fn move_and_draw(obj: &mut dyn DrawableMovable, x: f64, y: f64) {
+    obj.move_to(x, y);
+    obj.draw();
+}
+
+fn main() {}
+/*
+-------------------------------------------------------------------------------------------------------------
+Concept / Topic          | Explanation
+-------------------------|-----------------------------------------------------------------------------------
+Trait Object Restriction | A trait object in Rust can only be based on a single trait.
+                         | Combining multiple traits directly in a trait object is not allowed.
+
+Reason for Restriction   | Each trait object relies on a single vtable for dynamic dispatch.
+                         | Different traits generate different vtables for the same concrete type. 
+                         | Method resolution for a trait object involving multiple traits would be ambigious. 
+                                     
+Supertrait Workaround    | Multiple traits can be combined by defining a new trait with supertraits.
+                         | The composite trait represents all required behaviors.
+                         | A trait object can then be created from this single composite trait.
+
+Auto Traits Exception    | Auto traits like Send and Sync can be added to trait objects.
+                         | Auto traits define no methods and therefore require no vtable entries.
+-------------------------------------------------------------------------------------------------------------
+*/

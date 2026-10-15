@@ -1,0 +1,82 @@
+// -------------------------------------------
+// 			Benchmarking using Criterion
+// -------------------------------------------
+
+// Dependencies
+// [dev-dependencies]
+// criterion = "0.4.0"
+// [[bench]]
+// name = "sorting_benchmark"
+// harness = false
+
+// code for sorting_benchmark.rs file
+
+use learning_rust::{sort_algo_1, sort_algo_2};
+
+use criterion::{Criterion, criterion_group, criterion_main};
+
+fn sort_benchmark(c: &mut Criterion) {
+    let mut numbers: Vec<i32> = vec![
+        1, 2, 3, 6, 5, 4, 8, 52, 2, 1, 5, 4, 4, 5, 8, 54, 2, 0, 55, 5, 2, 0, 5, 5, 5, 21,
+    ];
+
+    // This creates a benchmark
+    c.bench_function("Sorting Algorithm", |b| {
+        b.iter(|| sort_algo_2(&mut numbers))
+    });
+}
+
+criterion_group!(benches, sort_benchmark);
+criterion_main!(benches);
+
+// Code for lib.rs
+pub fn sort_algo_1<T: PartialOrd>(arr: &mut Vec<T>) {
+    let mut swapped = false;
+    for i in 0..(arr.len() - 1) {
+        if arr[i] > arr[i + 1] {
+            arr.swap(i, i + 1);
+            swapped = true;
+        }
+    }
+    if swapped {
+        sort_algo_1(arr);
+    }
+}
+
+pub fn sort_algo_2<T: Ord>(arr: &mut Vec<T>) {
+    let len = arr.len();
+    for left in 0..len {
+        let mut smallest = left;
+        for right in (left + 1)..len {
+            if arr[right] < arr[smallest] {
+                smallest = right;
+            }
+        }
+        arr.swap(smallest, left);
+    }
+}
+
+/*
+---------------------------------------------------------------------------------------------------------------
+Concept/Topic            | Explanation
+-------------------------|-------------------------------------------------------------------------------------
+Benchmarking Basics      | - Compares performance of two or more implementations of the same task.
+                         | - Helps determine whether a change improves or worsens performance.
+                         | - Processing time is the typically the main focus.
+
+Criterion Setup          | - Criterion crate is used instead of unstable built-in Rust benchmarks.
+                         | - Added as a dev-dependency and configured in Cargo.toml.
+                         | - Default benchmark harness is disabled to use Criterion’s system.
+                         | - Benchmark files must be placed in a `benches` directory.
+                         | - File name for benchmarking must match the name defined in Cargo.toml.
+                         | - unctions intended for benchmarking and Criterion items must be brought into scope.
+
+Writing a Benchmark      | - Benchmark function receives a `Criterion` instance for configuration.
+                         | - Uses `benchmark` method and closures to repeatedly run the target function.
+                         | - The target function many times for accurate measurement.
+
+Running and Interpreting | - Run benchmarks using `cargo bench`.
+                         | - Output shows average execution time, outliers, and stability across runs.
+                         | - Comparing results reveals performance regression or improvement.
+---------------------------------------------------------------------------------------------------------------
+ */

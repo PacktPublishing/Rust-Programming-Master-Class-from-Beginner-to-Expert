@@ -1,0 +1,56 @@
+// -------------------------------------------
+// 		Negative Reasoning in Traits
+// -------------------------------------------
+
+trait Loud {
+    fn shout(&self) -> String;
+}
+
+struct Robot;
+
+impl Loud for Robot {
+    fn shout(&self) -> String {
+        String::from("BEEP BOOP !!!")
+    }
+}
+
+trait Quiet {
+    fn whisper(&self) -> String;
+}
+
+// impl<T> Quiet for T
+// where
+//     T: !Loud,
+// {
+//     fn whisper(&self) -> String {
+//         String::from("---")
+//     }
+// }
+
+// impl<T> Loud for T where T: !Quiet { ... }
+
+struct Human;
+impl Quiet for Human {
+    fn whisper(&self) -> String {
+        String::from("---")
+    }
+}
+fn main() {
+    let robot = Robot;
+    let human = Human;
+
+    println!("Robot says: {}", robot.shout());
+    println!("Human says: {}", human.whisper());
+}
+
+/*
+------------------------------------------------------------------------------------------------------
+Concept/Topic             | Explanation
+--------------------------|---------------------------------------------------------------------------
+Negative Reasoning        | Negative reasoning means deciding code behavior based on a type not implementing a trait.
+                          | Stable Rust never allows a bound such as T where T does not implement SomeTrait.
+                          | This restriction protects semantic versioning across future crate updates.
+------------------------------------------------------------------------------------------------------
+*/
+
+

@@ -1,0 +1,29 @@
+// -------------------------------------------
+// 	        References Referesher
+// -------------------------------------------
+
+fn main() {
+    let str = String::from("");
+    let ref_str_1 = &str;
+    let ref_str_2 = ref_str_1;
+    println!("{ref_str_1}");
+
+    let mut str_slice_1: &str;
+    {
+        let str_slice_2 = "";
+        str_slice_1 = "";
+    }
+    println!("{str_slice_1}");
+
+    let str_slice_from_string: &str;
+    {
+        let string = String::from("");
+        //str_slice_from_string = &*string;
+    }
+
+    //println!("{str_slice_from_string}");
+
+    let mut x = 45;
+    let z = &mut x;
+    let y = &*z;
+}

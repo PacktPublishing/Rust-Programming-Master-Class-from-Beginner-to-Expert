@@ -1,0 +1,32 @@
+// -------------------------------------------
+// 	        Drop Order (Part 1)
+// -------------------------------------------
+struct A;
+struct B;
+
+impl Drop for A {
+    fn drop(&mut self) {
+        println!("Dropping value of type A");
+    }
+}
+
+impl Drop for B {
+    fn drop(&mut self) {
+        println!("Dropping value of type B");
+    }
+}
+
+struct Container {
+    a: A,
+    b: B,
+}
+fn some_fn(a: A, b: B) {}
+fn main() {
+    // let a = A;
+    // let b = B;
+    // some_fn(a, b);
+
+    // let c = Container { b: B, a: A };
+
+    let _x = (A {}, B {});
+}

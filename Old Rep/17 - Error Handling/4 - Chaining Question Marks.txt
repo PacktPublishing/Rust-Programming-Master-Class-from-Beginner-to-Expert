@@ -1,0 +1,64 @@
+// ---------------------------------------------------
+// 	   Chaining with Question Mark
+//          Prerequisite: Method Chaining Constraints
+// ---------------------------------------------------
+struct Order {
+    item_count: i32,
+    price_per_item: f64,
+    balance: f64,
+    completed: bool,
+}
+
+#[derive(Debug)]
+enum OrderError {
+    InvalidOrder,
+    PayementFailed,
+    ShippingError,
+}
+
+impl Order {
+    fn validate(&self) -> Result<&Self, OrderError> {
+        if self.item_count == 0 {
+            Err(OrderError::InvalidOrder)
+        } else {
+            Ok(self)
+        }
+    }
+    fn process_payement(&mut self) -> Result<&mut Self, OrderError> {
+        let total_price = self.item_count as f64 * self.price_per_item;
+        if self.balance < total_price {
+            Err(OrderError::PayementFailed)
+        } else {
+            self.balance -= total_price;
+            Ok(self)
+        }
+    }
+
+    fn ship_order(&mut self) -> Result<&mut Self, OrderError> {
+        if self.item_count > 10 {
+            Err(OrderError::ShippingError)
+        } else {
+            self.completed = true;
+            Ok(self)
+        }
+    }
+
+    fn complete_order(&mut self) -> Result<(), OrderError> {
+        self.validate()?;
+        self.process_payement()?.ship_order()?;
+        Ok(())
+    }
+}
+fn main() {
+    let mut order = Order {
+        item_count: 5,
+        price_per_item: 20.0,
+        balance: 200.0,
+        completed: false,
+    };
+
+    match order.complete_order() {
+        Ok(_) => println!("Order completed successfully"),
+        Err(e) => println!("Order processing failed: {:?}", e),
+    }
+}

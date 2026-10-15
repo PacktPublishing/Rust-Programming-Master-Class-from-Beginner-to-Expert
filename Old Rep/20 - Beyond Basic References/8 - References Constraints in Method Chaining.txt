@@ -1,0 +1,75 @@
+// -------------------------------------------
+// 		Method Chaining Constraints
+// -------------------------------------------
+#[derive(Debug)]
+struct BankAccount {
+    balance: i32,
+    owner: String,
+}
+
+impl BankAccount {
+    fn new(owner: String, initial_balance: i32) -> Self {
+        println!("Account opened successfully");
+        Self {
+            balance: initial_balance,
+            owner: owner,
+        }
+    }
+
+    fn change_owner(mut self, new_owner: String) -> Self {
+        self.owner = new_owner;
+        self
+    }
+
+    fn check_balance(&self) {
+        println!("{}'s balance: ${}", self.owner, self.balance);
+    }
+
+    fn deposit(&mut self, amount: i32) -> &mut Self {
+        self.balance += amount;
+        println!("Deposited ${} to {}'s account", amount, self.owner);
+        self
+    }
+
+    fn withdraw(&mut self, amount: i32) -> &mut Self {
+        if self.balance >= amount {
+            self.balance -= amount;
+            println!("Withdrew ${} from {}'s account", amount, self.owner);
+        } else {
+            println!(
+                "Insufficient funds for withdrawal in {}'s account",
+                self.owner
+            );
+        }
+        self
+    }
+
+    fn view_owner(&self) -> &Self {
+        println!("Account owner: {}", self.owner);
+        self
+    }
+}
+fn main() {
+    let mut account = BankAccount::new("Micheal".to_string(), 4_000);
+
+    // Methods returning nothing can not be chained further to grow the chain
+    // account.check_balance();
+
+    // &mut Self -> chained with &mut self or &self
+    // account.deposit(100).withdraw(50);
+
+    // &Self -> chained with &self
+    // account.view_owner();
+
+    // Self -> chained with all the three froms
+    account.change_owner("new_owner".to_string());
+
+    println!("account: {:?}", account);
+}
+/*
+| Form of self         | Can Chain To `self` | Can Chain To `&self` | Can Chain To `&mut self`
+| -------------------- | ------------------- | -------------------- | ------------------------
+| `Self`               | ✅ Yes               | ✅ Yes (`&`)          | ✅ Yes (`&mut`)
+| `&Self`              | ❌ No                | ✅ Yes                | ❌ No
+| `&mut Self`          | ❌ No                | ✅ Yes (`&`)          | ✅ Yes
+ */

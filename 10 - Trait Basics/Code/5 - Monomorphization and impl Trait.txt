@@ -1,0 +1,105 @@
+// -------------------------------------------
+// 		Monomorphization and impl Trait
+// -------------------------------------------
+
+// Bounded Generics: fn draw<T: Shape>(shape: T)
+// Trait Objects: fn draw(shape: &dyn Shape)
+
+trait Shape {
+    fn area(&self) -> f32;
+}
+
+struct Square {
+    side: f32,
+}
+
+struct Rectangle {
+    length: f32,
+    width: f32,
+}
+
+impl Shape for Square {
+    fn area(&self) -> f32 {
+        self.side * self.side
+    }
+}
+
+impl Shape for Rectangle {
+    fn area(&self) -> f32 {
+        self.length * self.width
+    }
+}
+
+fn print_area<T: Shape>(shape: T) {
+    println!("Area of Shape: {}", shape.area());
+}
+
+// fn print_area_square(shape: Square) {
+//     println!("{:?} has area {}", shape, shape.area());
+// }
+//
+// fn print_area_rectangle(shape: Rectangle) {
+//     println!("{:?} has area {}", shape, shape.area());
+// }
+
+fn print_area_impl(shape: impl Shape) {
+    // still monomorphized
+    println!("Area of Shape: {}", shape.area());
+}
+
+fn make_square(side: f32) -> impl Shape {
+    // still monomorphized
+    // opaque return type
+
+    Square { side }
+    // let is_square = true;
+    // if is_square {
+    //     Square { side }
+    // } else {
+    //     Rectangle {
+    //         length: 2.0,
+    //         width: 3.0,
+    //     }
+    // }
+}
+
+fn make_square_dynamic(is_square: bool) -> Box<dyn Shape> {
+    if is_square {
+        Box::new(Square { side: 2.0 })
+    } else {
+        Box::new(Rectangle {
+            length: 2.0,
+            width: 3.0,
+        })
+    }
+}
+fn main() {
+    let sq = Square { side: 3.0 };
+    let rect = Rectangle {
+        length: 4.0,
+        width: 5.0,
+    };
+
+    print_area::<Square>(sq);
+    print_area::<Rectangle>(rect);
+    // print_area_impl::<Square>(sq);
+}
+/*
+----------------------------------------------------------------------------------------------------
+Concept/Topic           | Explanation
+------------------------|---------------------------------------------------------------------------
+Monomorphization        | For every type used in call to function, specalized function is generated.
+                        | This happens entirely at compile time.
+                        | They are zero-cost abstraction and has no runtime overhead.
+                        | May reseult in larger binary if many different types are used.
+
+impl Trait in arguments | Still monomorphized like a normal generics.
+                        | The caller cannot use turbofish syntax with it.
+
+impl Trait in return    | The caller does not know the return value concrete type.
+                        | It is still static dispatch but resolves to exactly one concrete type.
+
+impl Trait vs dyn Trait | impl Trait = static dispatch, resolved at compile time
+                        | Box<dyn Trait> = dynamic dispatch, resolved at runtime.
+----------------------------------------------------------------------------------------------------
+*/

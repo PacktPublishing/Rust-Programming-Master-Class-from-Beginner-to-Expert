@@ -1,0 +1,46 @@
+// -------------------------------------------
+// 			Sized Trait
+// -------------------------------------------
+
+// include as dependency in the cargo.toml file  negative-impl = "0.1.4"
+use std::fmt::Debug;
+
+fn describe<T: Debug>(item: T) {
+    // later on add  + Sized
+    println!("Item: {:?}", item);
+}
+
+// fn broken(s: str) {
+//     println!("{}", s);
+// }
+
+// Non sized types: [T] and dyn Trait
+
+use negative_impl::negative_impl;
+struct ABC;
+#[negative_impl]
+impl !Send for ABC {}
+
+#[negative_impl]
+impl !Sync for ABC {}
+
+#[negative_impl]
+impl !Sized for ABC {}
+
+fn main() {
+    // describe(42);
+    // describe("fixed size reference");
+}
+/*
+-----------------------------------------------------------------------------------------------------
+Concept/Topic           | Explanation
+------------------------|---------------------------------------------------------------------------
+Sized Trait Basics      | It is a marker trait with no methods.
+                        | It is implemented by the compiler for types with a known compile-time size.
+                        
+Dynamically Sized Types | These are types whose size is only known at runtime.                   
+
+Negative Impl           | Negative implementation for Sized trait is not allowed.
+                        | It carries no advantage 
+------------------------------------------------------------------------------------------------------
+*/

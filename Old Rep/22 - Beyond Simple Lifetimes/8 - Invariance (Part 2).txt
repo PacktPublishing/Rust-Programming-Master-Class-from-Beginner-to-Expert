@@ -1,0 +1,24 @@
+// -------------------------------------------
+// 	        Invariance
+//              - Mutable references are invariant in their Type or T
+//                but covariant in their lifetime
+// -------------------------------------------
+// &'a mut T
+fn update_reference<'longer, 'shorter>(mut u_1: &'longer mut u8, mut u_2: &'shorter mut u8)
+where
+    'longer: 'shorter,
+{
+    u_2 = u_1; // &'shorter mut u8 = &'longer mut u8
+}
+fn main() {
+    // &'a mut &'b str  // (Note: The 2nd reference: &'b str was considered in the previous lesson on invariance) 
+                        // In this lesson we are focusing and explaining the first reference: &'a mut
+
+    let mut x1: u8 = 8;
+    let mut x2: u8 = 10;
+    let mut y = &mut x1;
+    {
+        let mut z = &mut x2;
+        update_reference(y, z);
+    }
+}

@@ -1,0 +1,68 @@
+// -------------------------------------------
+// 			Extension Traits
+// -------------------------------------------
+
+trait UsernameListExt {
+    fn longest(&self) -> Option<&String>;
+}
+
+trait StrShoutExt {
+    fn shout(&self) -> String;
+}
+impl StrShoutExt for str {
+    fn shout(&self) -> String {
+        format!("{}!", self.to_uppercase())
+    }
+}
+impl UsernameListExt for Vec<String> {
+    fn longest(&self) -> Option<&String> {
+        self.iter().max_by_key(|name| name.len())
+    }
+}
+
+trait BoxedPrintExt {
+    fn boxed_print(&self);
+}
+
+impl<T: std::fmt::Display> BoxedPrintExt for T {
+    fn boxed_print(&self) {
+        let text = format!("{}", self);
+        let border = "*".repeat(text.len() + 4);
+        println!("{border}");
+        println!("* {text}");
+        println!("{border}");
+    }
+}
+fn main() {
+    // We cannot attach methods to these directly due to orphan rule restriction
+    let usernames = vec![
+        String::from("Sam"),
+        String::from("Alexandra"),
+        String::from("Joe"),
+    ];
+
+    if let Some(name) = usernames.longest() {
+        println!("Longest username: {name}");
+    }
+
+    let greeting = "hello world".shout();
+    println!("{greeting}");
+
+    42.boxed_print();
+    "extention traits".boxed_print();
+}
+
+/*
+------------------------------------------------------------------------------------------------------
+Concept/Topic             | Explanation
+--------------------------|---------------------------------------------------------------------------
+Extension Traits Basics   | An extension trait adds new methods to a type you do not own.
+                          | It is defined as a normal trait with the desired method signatures.
+                          | It allow us to methods on foreign type if they were built in.
+
+EXT traits                | They can be used to provide blanket implementations using generics.
+Blanket implementation    | Any type implementing the required bound automatically gains the method.
+
+Naming Convention         | Extension traits are commonly named with an Ext suffix.
+------------------------------------------------------------------------------------------------------
+*/

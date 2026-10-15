@@ -1,0 +1,82 @@
+// -------------------------------------------
+// 	        Drop Check and Partial Move
+//              Prereqs: Struct, Lifetimes, Traits, Ownership
+// -------------------------------------------
+
+/* starting code
+struct A<'a> {
+    a: &'a mut i32,
+}
+
+impl<'a> Drop for A<'a> {
+    fn drop(&mut self) {
+        println!("Dropping");
+    }
+}
+
+fn main() {
+    let mut x = 45;
+    let b = A {
+        a: &mut x,
+    };
+
+
+}
+*/
+struct A<'a> {
+    a: &'a mut i32,
+    s: String, // add later on
+}
+
+impl<'a> Drop for A<'a> {
+    fn drop(&mut self) {
+        println!("Dropping");
+    }
+}
+
+fn main() {
+    let mut x = 45;
+    let b = A {
+        a: &mut x,
+        s: String::from("some str"), // add later
+    };
+
+    let c = b.s; 
+}
+
+
+
+
+
+// problem question
+// use std::ops::Deref;
+// #[derive(Debug)]
+// struct A {
+//     a: i32,
+//     b: String,
+// }
+// struct B {
+//     a: i32,
+//     b: String,
+// }
+
+// impl Drop for A {
+//     fn drop(&mut self) {
+//         println!("Dropping");
+//     }
+// }
+
+// fn main() {
+//     let u1 = A {
+//         a: 8,
+//         b: String::from("I cant move out"),
+//     };
+
+//     let u2 = B {
+//         a: 8,
+//         b: String::from("I can move out"),
+//     };
+
+//     let c = u2.b;
+//     let d = u1.b;
+// }

@@ -1,0 +1,17 @@
+// -------------------------------------------
+// 	        Lifetime Bounds
+// -------------------------------------------
+
+// 'b: 'a -> 'b outlives 'a or 'b lasts atlest as long as 'a
+fn largest<'a, 'b>(x: &'a u8, y: &'b u8) -> &'a u8
+where
+    'b: 'a,
+{
+    if x > y {
+        x
+    } else {
+        y
+    }
+}
+
+fn main() {}

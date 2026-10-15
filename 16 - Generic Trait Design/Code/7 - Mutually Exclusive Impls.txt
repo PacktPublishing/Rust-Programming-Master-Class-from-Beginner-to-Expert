@@ -1,0 +1,79 @@
+// -------------------------------------------
+// 			Mutually Exclusive Impls
+// -------------------------------------------
+
+trait Sound {
+    fn make_sound(&self) -> String;
+}
+
+trait Canine {}
+trait Feline {}
+struct Dog;
+struct Cat;
+
+impl Canine for Dog {}
+impl Feline for Cat {}
+
+// impl<T: Canine> Sound for T {
+//     fn make_sound(&self) -> String {
+//         String::from("Woof")
+//     }
+// }
+
+// impl<T: Feline> Sound for T {
+//     fn make_sound(&self) -> String {
+//         String::from("Meow")
+//     }
+// }
+
+trait AnimalSound {
+    fn sound() -> String;
+}
+
+impl AnimalSound for Dog {
+    fn sound() -> String {
+        String::from("Woof")
+    }
+}
+
+impl AnimalSound for Cat {
+    fn sound() -> String {
+        String::from("Meow")
+    }
+}
+
+impl<T: AnimalSound> Sound for T {
+    fn make_sound(&self) -> String {
+        T::sound()
+    }
+}
+
+// impl Sound for Dog {}
+fn main() {
+    let dog = Dog;
+    let cat = Cat;
+
+    println!("Dog says: {}", dog.make_sound());
+    println!("Cat says: {}", cat.make_sound());
+}
+
+/*
+------------------------------------------------------------------------------------------------------
+Concept/Topic             | Explanation
+--------------------------|---------------------------------------------------------------------------
+Coherence Rule            | Rust allows only one implementation of a trait for any given concrete type.
+                          | This guarantee is enforced by the compiler and is called coherence.
+                          | Because of coherence, trait impls for a type are always mutually exclusive.
+
+Conflicting Blanket Impls | Two separate blanket impls with different generic bounds can still conflict.
+                          | This happens even when the bounds come from disjoint marker traits.
+                          | The compiler cannot prove that no type will ever satisfy both bounds.
+
+Resolving the Overlap     | The fix is to keep only a single blanket impl for a trait.
+                          | The differing behavior is moved into a second, per-type trait instead.
+                          | Each concrete type implements that second trait exactly once.
+                   
+Specialization Note       | Nightly Rust offers an unstable specialization feature for overlapping impls.
+                          | This feature is not yet stable and is not used in ordinary Rust code.
+------------------------------------------------------------------------------------------------------
+*/

@@ -1,0 +1,43 @@
+// --------------------------------------------------------
+// 	    Layering Result and Option Together (Part 1)
+// --------------------------------------------------------
+
+// Result<Option<T>, E>
+// Three-way Outcome -> Ok(Some(val))   for success with value,
+//                   -> Ok(None)        for success but no value,
+//                   -> Err(e)          for failure.
+
+// Option<Result<T, E>>
+use rand::Rng;
+struct Product {
+    id: u32,
+    name: String,
+}
+
+enum DBError {
+    ConnectionFailed,
+}
+
+fn db_connection() -> Result<(), DBError> {
+    let mut rng = rand::thread_rng();
+    if rng.gen_range(0.0..1.0) < 0.1 {
+        Err(DBError::ConnectionFailed)
+    } else {
+        Ok(())
+    }
+}
+fn find_product(id: u32) -> Result<Option<Product>, DBError> {
+    // The query failed
+    // The query succeeded with a valid product
+    // The query succeeded but no valid product
+    db_connection()?;
+    match id {
+        0..=100 => Ok(Some(Product {
+            id,
+            name: "Laptop".to_string(),
+        })),
+        _ => Ok(None),
+    }
+}
+fn main() {}
+s

@@ -1,0 +1,42 @@
+// -------------------------------------------------
+// 			- Combinators on Option
+// -------------------------------------------------
+
+fn main() {
+    // 1. map
+    let name: Option<String> = None; // Some("alice");
+    let upper = name.map(|s| {
+        s.to_uppercase();
+        print!("Inside the closure");
+    });
+
+    // 2. and_then
+    let input = Some(4);
+    let result = match input {
+        Some(value1) => match add_five_if_even(value1) {
+            Some(value2) => match divide_by_two_if_even(value2) {
+                Some(final_value) => Some(final_value),
+                None => None,
+            },
+            None => None,
+        },
+        None => None,
+    };
+
+    let result = input
+        .and_then(|x| if x % 2 == 0 { Some(x + 5) } else { None })
+        .and_then(|x| divide_by_two_if_even(x));
+}
+
+fn add_five_if_even(n: u32) -> Option<u32> {
+    if n % 2 == 0 { Some(n + 5) } else { None }
+}
+
+fn divide_by_two_if_even(n: u32) -> Option<u32> {
+    if n % 2 == 0 { Some(n / 2) } else { None }
+}
+
+/*
+map         || Transform the inner value of an Option.
+and_then    || Sequence of operations where each step may also return Option.
+*/

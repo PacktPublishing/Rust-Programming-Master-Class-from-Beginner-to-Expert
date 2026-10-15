@@ -1,0 +1,32 @@
+// --------------------------------------------
+// 	   Destructured Struct Parameters
+// --------------------------------------------
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn print_coord(Point { x, y }: Point) {
+    // Value: p or Point {x: 5, y: 6}
+    // Pattern: Point {x, y}
+
+    println!("x: {}, y: {}", x, y);
+}
+fn main() {
+    let p = Point { x: 0, y: 7 };
+    match p {
+        Point { x: 0, y } => println!("On the y-axis at: {}", y),
+        Point { x, y: 0 } => println!("On the x-axis at: {}", x),
+        Point { x, y } => println!("at point ({}, {})", x, y),
+    }
+    let x = 5;
+    if let x = 5 {}
+    // Value: 5
+    // Pattern: x
+
+    // Value: p or Point {x: 7, y: 0}
+    // Pattern: Point {x: 0, y}
+
+    let p = Point { x: 5, y: 6 };
+    print_coord(p);
+}

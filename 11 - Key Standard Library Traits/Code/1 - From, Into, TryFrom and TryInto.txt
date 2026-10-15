@@ -1,0 +1,67 @@
+// -------------------------------------------
+// 		- From / Into / TryFrom / TryInto
+// -------------------------------------------
+
+struct Celsuis(f64);
+struct Fahrenheit(f64);
+
+impl From<Celsuis> for Fahrenheit {
+    fn from(c: Celsuis) -> Self {
+        Fahrenheit(c.0 * 9.0 / 5.0 + 32.0)
+    }
+}
+
+struct EvenNumber(i32);
+
+impl TryFrom<i32> for EvenNumber {
+    type Error = String;
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
+        if value % 2 == 0 {
+            Ok(EvenNumber(value))
+        } else {
+            Err(format!("{} is not an even number", value))
+        }
+    }
+}
+fn main() {
+    // From<U> for T Compiler implements Into<T> for U
+    let c = Celsuis(100.0);
+    let f = Fahrenheit::from(c);
+
+    let c2 = Celsuis(0.0);
+    let f2: Fahrenheit = c2.into();
+    // From and Into are infallible
+
+    // TryFrom<U> for T Compiler implements TryInto<T> for U
+    let even = EvenNumber::try_from(8);
+    let even_1: Result<EvenNumber, _> = 12.try_into();
+
+    // Coversion between numeric types
+    let i_64_value: i64 = 1_000_000_0000;
+    // let i_32_value = i_64_value as i32;
+    let i_32_value = i32::try_from(i_64_value);
+    let i_32_value: Result<i32, _> = i_64_value.try_into();
+    println!("i32 value: {:?}", i_32_value);
+}
+/*
+------------------------------------------------------------------------------------------------------
+Concept/Topic             | Explanation
+--------------------------|---------------------------------------------------------------------------
+From / Into                | From and Into are used for infallible, one-way type conversions.
+                           | From<U> for T defines a mandatory from() function.
+                           | Into is the reverse-direction counterpart, called as u.into().
+
+Compiler Provided Into     | We almost never implement Into ourselves.
+                           | Implementing From<U> for T, the compiler provides Into<T> for U for free.
+                           | from() and into() are just two equivalent styles of the same
+
+TryFrom / TryInto          | TryFrom and TryInto are used when a conversion can fail.
+                           | TryFrom requires an associated Error type and a mandatory try_from().
+                           | Implementing TryFrom<U> for T, the compiler provides TryInto<T> for U for free.
+
+Numeric Type Conversion    | TryFrom/TryInto are used for safe conversions between Integer.
+                           | The "as" keyword may return incorrect values.
+                           | TryFrom::try_from() (or try_into()) retruns a result instead.
+                           | Correct conversion are wrapped inside Ok while incorrect are in Err variant.
+------------------------------------------------------------------------------------------------------
+*/

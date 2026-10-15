@@ -1,0 +1,66 @@
+// ------------------------------------------------------
+// 	 Downcasting for Conversion Between Trait Objects
+// ------------------------------------------------------
+use std::any::Any;
+trait Shape {
+    fn area(&self) -> f32;
+}
+
+trait Drawable {
+    fn draw(&self);
+}
+
+struct Rectangle {
+    width: f32,
+    height: f32,
+}
+
+impl Shape for Rectangle {
+    fn area(&self) -> f32 {
+        self.width * self.height
+    }
+}
+
+impl Drawable for Rectangle {
+    fn draw(&self) {
+        println!(
+            "Drawing a rectangle with width: {} and height: {}",
+            self.width, self.height
+        );
+    }
+}
+
+fn check_if_convertable(shape: &dyn Any) {
+    if let Some(drawable) = shape.downcast_ref::<&dyn Drawable>() {
+        println!("This shape is drawable");
+        drawable.draw();
+    } else {
+        println!("This shape is not drawable");
+    }
+}
+fn main() {
+    let rect = Rectangle {
+        width: 5.0,
+        height: 10.0,
+    };
+
+    check_if_convertable(&rect);
+    // 1. If the type has some other trait
+    // 2. Conversion between trait objects
+}
+
+/*
+---------------------------------------------------------------------------------------------------------------------
+Concept/Topic                | Explanation
+-----------------------------|---------------------------------------------------------------------------------------
+Checking for a Trait         | Downcasting can be used to check whether a concrete type has some trait.
+Using Downcasting            | It is useful when we want to dynamically determine the presence of a trait for a type.
+                             |
+
+Process of conversion        | First we convert a type -> &dyn Any which enables runtime type inspection.
+                             | The &dyn Any -> trait object using downcast_ref.
+                             | When downcasting succeeds, trait-specific methods can be invoked dynamically.
+                             | This allows conditional execution of behavior.
+---------------------------------------------------------------------------------------------------------------------
+ */
+s

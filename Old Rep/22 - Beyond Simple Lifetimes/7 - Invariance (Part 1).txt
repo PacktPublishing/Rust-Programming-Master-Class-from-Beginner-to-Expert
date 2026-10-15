@@ -1,0 +1,25 @@
+// -------------------------------------------
+// 	        Invariance
+//
+//          Prereqs: Lifetime Elision, Subtyping
+// -------------------------------------------
+
+/* // Subtype
+// 'x: 'y  => T<'x> relationship with T<'y>?
+
+// Types of variance
+//      1. Covariance: If 'x: 'y then T<'x>: T<'y>
+//      2. Contravariance: if 'x: 'y then T<'y>: T<'x>
+//      3. Invariance: if 'x: 'y then T<'x> has no relationship T<'y>
+*/
+// function expects: fn(&mut Vec<&'a str>,      &'a str)
+// We provided:      fn(&mut Vec<&'static str>, &'a str)
+
+fn accept_vec(str_vec: &mut Vec<&str>, s: &str) {
+    str_vec.push(s)
+}
+fn main() {
+    let mut vec: Vec<&'static str> = vec!["", ""];
+    let non_static_str = &*String::from("");
+    accept_vec(vec, non_static_str);
+}

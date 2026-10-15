@@ -1,0 +1,52 @@
+// -------------------------------------------
+// 	        Error Handling
+// -------------------------------------------
+// Error Types
+// 1. Unrecoverable Errors
+// 2. Recoverable Errors
+
+use std::fs::File;
+
+// Examples of unrecoverable errors
+// Example 1: Unimplemented code
+fn unimplemented_feature() {
+    panic!("This feature is not implemented yet");
+}
+
+// Example 2: Invalid values
+fn value_processing(value: i32) {
+    match value {
+        1 => println!("One"),
+        2 => println!("Two"),
+        _ => panic!("unexpected value: {}", value),
+    }
+}
+
+// Example 3: Critical conditions of tests
+fn must_be_positive(n: i32) {
+    assert!(n > 0, "Value must be positive, got {}", n);
+}
+fn main() {
+    // Example 4: Index out of bound
+    // let v = vec![1, 2, 3];
+    // println!("{}", v[5]);
+
+    // Examples of recoverable errors
+    // Example 1: File opening
+    let file = File::open("missing.txt");
+    match file {
+        Ok(f) => println!("File opened successfully: {:?}", f),
+        Err(e) => println!("Failed to open file: {}", e),
+    }
+
+    // Example 2: Parsing integer
+    let user_input = "42a";
+    match parse_input_to_int(user_input) {
+        Ok(n) => println!("Prased number: {}", n),
+        Err(e) => println!("Invalid input: {}", e),
+    }
+}
+
+fn parse_input_to_int(input: &str) -> Result<i32, std::num::ParseIntError> {
+    input.trim().parse::<i32>()
+}

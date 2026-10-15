@@ -1,0 +1,98 @@
+// -------------------------------------------
+//   - AsRef, AsMut, Borrow, BorrowMut
+// -------------------------------------------
+
+use std::{
+    borrow::{Borrow, BorrowMut},
+    collections::HashMap,
+    path::Path,
+};
+
+// ---- AsRef and AsMut -----
+// accepts &str, String, &String
+fn print_len<S: AsRef<str>>(s: S) {
+    let s = s.as_ref();
+    println!("len: {}", s.len());
+}
+struct Name(String);
+impl AsRef<str> for Name {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+fn shout<S: AsMut<str>>(s: &mut S) {
+    s.as_mut().make_ascii_uppercase();
+}
+
+// ---- Borrow and BorrowMut -----
+
+fn print_len_borrow<S: Borrow<str>>(s: S) {
+    let s = s.borrow();
+    println!("len (via Borrow) {}", s.len());
+}
+
+fn takes_borrow_of_i32<T: Borrow<i32>>(t: T) {
+    println!("{}", t.borrow());
+}
+
+fn append_via_borrow_mut<T: BorrowMut<String>>(t: &mut T) {
+    t.borrow_mut().push_str("(Appended)");
+}
+
+fn open_report<P: AsRef<Path>>(path: P) {
+    let path = path.as_ref();
+    println!("Would open: {:?}", path);
+}
+
+// impl AsRef<Path> for str
+// impl AsRef<Path> for String
+// impl AsRef<Path> for Path
+fn main() {
+    print_len("Literal &str");
+    print_len(String::from("Owned String"));
+    print_len(&String::from("Reference to String"));
+    print_len(Name(String::from("Micheal")));
+
+    let mut str = String::from("Hello");
+    shout(&mut str);
+
+    print_len_borrow("Literal &str");
+    print_len_borrow(String::from("Owned String"));
+
+    let mut map: HashMap<String, i32> = HashMap::new();
+    map.insert(String::from("applies"), 3);
+
+    let count = map.get("applies");
+    // map.get() is generic: fn get<Q: ?Sized>(&self, k: &Q) -> Option<&V>
+    // where String: Borrow<Q>, Q: Hash + Eq
+
+    takes_borrow_of_i32(5);
+    takes_borrow_of_i32(&5);
+
+    let mut s = String::from("hi");
+    append_via_borrow_mut(&mut s);
+
+    open_report("report.txt");
+    open_report(String::from("report.txt"));
+    open_report(Path::new("report.txt"));
+}
+
+/*
+------------------------------------------------------------------------------------------------
+Concept/Topic       | Explanation
+--------------------|---------------------------------------------------------------------------
+AsRef / AsMut       | AsRef provides a shared reference view of another type.
+                    | AsMut provides a mutable reference view of another type.
+                    | Both are used to make function parameters flexible and convenient.
+                    | Both guarantee reference conversion and nothing more.
+
+Borrow / BorrowMut  | They provide stronger guarantees.
+                    | They ensure equality, ordering, and hashing must remain consistent between
+                    | owned type and its borrowed form.
+
+Advantage of Borrow | Lookup in HashMap does not require heap allocation.
+
+Reflexive Property  | Every type automatically implements Borrow<Self>
+                    | AsRef<Self> is not automatically provided.
+-------------------------------------------------------------------------------------------------
+*/

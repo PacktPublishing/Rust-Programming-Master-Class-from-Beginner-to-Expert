@@ -1,0 +1,32 @@
+// -------------------------------------------
+// 	        Types of References
+// -------------------------------------------
+/* Starting code 
+fn main() {
+    let mut vec_1 = vec![1, 2, 3];
+    let mut vec_2 = vec![4, 5, 6];
+    let reference = &vec_1; 
+}
+*/ 
+
+fn main() {
+    let mut vec_1 = vec![1, 2, 3];
+    let mut vec_2 = vec![4, 5, 6];
+    let mut reference = &vec_1;  // later on change to mut
+    reference = &vec_2;
+
+    let mut reference = &mut vec_1; // change to mut later on
+    reference.push(10);
+    reference = &mut vec_2;
+
+    let reference = &mut &vec_1; // later on change to mut
+    *reference = &mut &vec_2; // remove the star later on
+
+    // Summary
+    //     ref: &SomeType;       // immutable binding of an immutable reference
+    // mut ref: &SomeType;       // mutable binding of an immutable reference
+    //     ref: &mut SomeType;   // immutable binding of a mutable reference
+    // mut ref: &mut SomeType;   // mutable binding of a mutable reference
+    //     ref: &mut &SomeType;  // immutable binding of a mutable reference to an immutable reference.
+    // mut ref: &mut &SomeType;  // mutable binding of a mutable reference to an immutable reference.
+}

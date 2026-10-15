@@ -1,0 +1,51 @@
+use testing::{Category, Customer, Order, Product};
+mod helpers;
+#[test]
+fn test_total_bill_without_discount() {
+    helpers::common_setup();
+    let product = Product::new(1, String::from("Book"), 19.9, Category::Books);
+    let customer = Customer::new(1, String::from("Bob"), String::from("bob@example.com"));
+    let order = Order::new(2, product, customer, 3);
+
+    assert_eq!(format!("{:.2}", order.total_bill()), "65.67");
+}
+
+#[test]
+fn test_total_bill_with_discount() {
+    let product = Product::new(1, String::from("Book"), 19.99, Category::Books);
+    let customer = Customer::new(1, String::from("Bob"), String::from("bob@example.com"));
+    let order = Order::new(2, product, customer, 10); // change to 10 later on
+    assert_eq!(format!("{:.2}", order.total_bill()), "197.90"); // change to 197.90
+}
+
+// store in a separate file inside the tests/helpers/mod.rs
+pub fn common_setup();
+
+/*
+--------------------------------------------------------------------------------------------------
+Concept/Topic            | Explanation
+-------------------------|--------------------------------------------------------------------
+Integration Tests        | - Verify how different units work together.
+                         | - Stored separately from the main library code.
+                         | - Test only the public interface.
+                         | - Helps isolate and organize test logic.
+
+Location and Compilation | - Placed in a top-level `tests` directory.
+                         | - Cargo automatically searches this folder for tests.
+                         | - Each file in `tests` is compiled as an independent crate.
+                         | - Tests need to import public items from the library crate.
+
+Viewing Test Reports     | - Cargo displays separate reports for unit and integration tests.
+                         | - The `cargo tes --test test_file` will filter test results for a specific test file.
+
+Issue with Helper Files  | - Top-level files in `tests` are treated as test crates.
+                         | - Helper files may unintentionally run as tests.
+                         | - To fix this, we can place helper files in a subdirectory containing `mod.rs`.
+                         | - This enables cargo to it as a test file.
+                         | - This also enables top level test files in Tests folder to import the helper modules.
+
+Limitation               | - Integration test cannot directly import from binary crates.
+                         | - Common practice: keep major logic in a library crate.
+--------------------------------------------------------------------------------------------------
+
+*/

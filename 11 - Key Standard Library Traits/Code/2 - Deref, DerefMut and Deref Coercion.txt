@@ -1,0 +1,67 @@
+// -------------------------------------------
+// 		Deref, DerefMut and Deref Coercion
+// -------------------------------------------
+
+// * -> rust looks for Deref Implementation
+
+use std::ops::{Deref, DerefMut};
+
+struct MyBox<T>(T);
+
+impl<T> MyBox<T> {
+    fn new(x: T) -> MyBox<T> {
+        MyBox(x)
+    }
+}
+
+impl<T> Deref for MyBox<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<T> DerefMut for MyBox<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+fn hello(name: &str) {
+    println!("Hello, {}!", name);
+}
+fn main() {
+    let y = MyBox::new(5);
+    let z = *y; // *y  desugars to *(y.deref())
+
+    let m = MyBox::new(String::from("Rust"));
+
+    hello(&m); // works only becuase of deref coercion
+
+    // Coercion Chain:
+    // &MyBox<String> -> &String -> &str
+
+    let mut n = MyBox::new(String::from("World"));
+    // fn push_str(&mut self, string: &str)  // where self = String
+    n.push_str("!");
+
+    hello(&mut n);
+    // &mut MyBox<String> -> &MyBox<String> -> &String -> &str
+
+    // Note.
+    // pub trait DerefMut: Deref {
+    //     fn deref_mut(&mut self) -> &mut Self::Target;
+    // }
+}
+
+/*
+Deref coercion rules
+---------------------------------------------------------
+From        To          Requires
+---------------------------------------------------------
+&T          &U          T: Deref<Target = U>
+&mut T      &mut U      T: DerefMut<Target = U>
+&mut T      &U          T: Deref<Target = U>
+---------------------------------------------------------
+Coercion of &U into &mut U is not allowed
+*/

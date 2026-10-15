@@ -1,0 +1,34 @@
+// -------------------------------------------
+// 	        Propagating Errors
+// -------------------------------------------
+
+use std::num::ParseIntError;
+
+fn read_number(input: &str) -> Result<i32, ParseIntError> {
+    // match input.trim().parse::<i32>() {
+    //     Ok(num) => Ok(num),
+    //     Err(e) => Err(e),
+    // }
+
+    /*
+    let num = match input.trim().parse::<i32>() {
+        Ok(n) => n,
+        Err(e) => return Err(e),
+    };
+    */
+    let num = input.trim().parse::<i32>()?;
+    Ok(num)
+}
+
+fn extract_username(email: &str) -> Option<&str> {
+    let at_pos = email.find('@')?;
+    let username = email.get(0..at_pos)?;
+    Some(username)
+}
+fn main() {}
+
+// Point                    ||        Explanation
+// ? usage 	                ||        Only valid inside functions that return Result or Option.
+// Behavior on Ok or Some   ||        Unwraps the value and continues execution.
+// Behavior on Err or None	||        Returns early from the function with Err or None.
+

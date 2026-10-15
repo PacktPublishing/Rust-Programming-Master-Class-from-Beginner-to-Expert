@@ -1,0 +1,60 @@
+use std::mem::{self, ManuallyDrop};
+
+// -------------------------------------------
+// 	        Avoiding Dropping
+//              - Forget drop
+//              - Manually drop
+// -------------------------------------------
+struct Data {
+    vec: Vec<i32>,
+}
+
+impl Data {
+    fn new() -> Self {
+        Self {
+            vec: Vec::with_capacity(0),
+        }
+    }
+}
+
+impl Drop for Data {
+    fn drop(&mut self) {
+        // expensive_operation();
+        println!("Dropping Data");
+    }
+}
+fn main() {
+    // Usecase 1: Data may be not intialized
+    // let data = Data::new();
+    // let data_initialized = false;
+    // if !data_initialized {
+    //     mem::forget(data);
+    //     //let x = data;
+    //     //drop(data); // not valid
+    // }
+
+    // Usecase 2: Benchmarking
+    // let start = std::time::Instant::now();
+    // for _ in 0..1_000_000 {
+    //     {
+    //         let v = vec![0; 100];
+    //         mem::forget(v);
+    //     }
+    // }
+    // let duration = start.elapsed();
+
+    // Manually drop
+    let mut data = ManuallyDrop::new(Data::new());
+
+    unsafe {
+        ManuallyDrop::drop(&mut data);
+    }
+}
+
+/*
+Feature                   ManuallyDrop<T>   	   ||     mem::forget
+Prevents automatic drop?	    Yes	               ||      Yes
+Allows explicit drop?	        Yes                ||      No
+More structured?	            Yes	               ||      No
+Works well with unsafe Rust?    Yes	               ||      No
+*/

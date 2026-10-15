@@ -1,0 +1,106 @@
+// -------------------------------------------
+// 			- Index and IndexMut Traits
+// -------------------------------------------
+
+use std::ops::{Index, IndexMut};
+
+struct RowVector {
+    data: Vec<f64>,
+}
+
+impl Index<usize> for RowVector {
+    type Output = f64;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
+    }
+}
+
+impl IndexMut<usize> for RowVector {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.data[index]
+    }
+}
+
+struct Matrix {
+    rows: usize,
+    cols: usize,
+    data: Vec<f64>,
+}
+
+impl Matrix {
+    fn new(rows: usize, cols: usize) -> Self {
+        Matrix {
+            rows,
+            cols,
+            data: vec![0.0; rows * cols],
+        }
+    }
+}
+
+impl Index<(usize, usize)> for Matrix {
+    type Output = f64;
+
+    fn index(&self, (r, c): (usize, usize)) -> &Self::Output {
+        assert!(r < self.rows && c < self.cols, "index out of bounds");
+        &self.data[r * self.cols + c]
+    }
+}
+
+impl IndexMut<(usize, usize)> for Matrix {
+    fn index_mut(&mut self, (r, c): (usize, usize)) -> &mut Self::Output {
+        assert!(r < self.rows && c < self.cols, "index out of bounds");
+        &mut self.data[r * self.cols + c]
+    }
+}
+
+fn update_first(r: &mut RowVector) {
+    r[0] = 99.0; // *(IndexMut::index_mut(&mut RowVector, 0)) = 99.0;
+}
+fn main() {
+    let mut v = RowVector {
+        data: vec![10.0, 20.0, 30.0],
+    };
+
+    // v[1] = 99.0;
+    println!("{}", v[1]); // -> *(Index::index(&v, 1))
+
+    v[1] = 30.0; // -> *(IndexMut::indexMut(&mut v, 1)) = 99.0
+
+    let y = v[10];
+
+    let mut m = Matrix::new(2, 2);
+    // m.data[0] = 1.0;
+    // m.data[1] = 2.0;
+    // m.data[2] = 3.0;
+    // m.data[3] = 4.0;
+
+    // [  1.0    2.0
+    //    3.0    4.0 ]
+
+    m[(0, 0)] = 1.0; // ->  *(IndexMut::index_mut(&mut m, (0, 0))) = 100.0;
+
+    m[(0, 1)] = 2.0;
+    m[(1, 0)] = 3.0;
+    m[(2, 2)] = 4.0;
+
+    let bad = m[(5, 0)]; // runtime error
+}
+
+/*
+------------------------------------------------------------------------------------------------
+Concept/Topic       | Explanation
+--------------------|---------------------------------------------------------------------------
+Index Trait         | Enables read-only indexing using the square bracket syntax.
+                    | Provides mandatory index().
+
+IndexMut Trait      | Enables mutable indexing and assignment through square brackets.
+                    | It requires Index trait as its super trait.
+                    | Provides the mandatory index_mut() method.
+
+Runtime Bounds      | Index bounds are checked at runtime rather than compile time.
+                    | Out-of-bounds indexing compiles successfully but causes a panic at runtime.
+                    
+Compile-Time        | Square bracket syntax is desugared into trait method calls at compile time.
+Desugaring          | This leads to little or no runtime overhead.
+------------------------------------------------------------------------------------------------
+*/

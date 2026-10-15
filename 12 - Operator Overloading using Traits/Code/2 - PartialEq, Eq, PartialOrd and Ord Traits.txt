@@ -1,0 +1,156 @@
+// -------------------------------------------------------
+// 		PartialEq, Eq, PartialOrd and Ord Traits
+// -------------------------------------------------------
+
+// ---- PartialEq and Eq -----
+#[derive(Debug, PartialEq, Eq)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+// trait PartialEq<Rhs = Self> {
+//     fn eq(&self, other: &Rhs) -> bool;  // == desugars to self.eq(&Rhs)
+//     fn ne(&self, other: &Rhs) -> bool { // != desugars to self.ne(&Rhs)
+//         !self.eq(other)
+//     }
+// }
+
+// trait Eq: PartialEq<Self> {}
+// #[derive(Debug)]
+// struct User {
+//     id: u32,
+//     name: String,
+// }
+
+// impl PartialEq for User {
+//     fn eq(&self, other: &Self) -> bool {
+//         self.id == other.id
+//     }
+// }
+
+// impl Eq for User {}
+
+struct Meters(f64);
+struct Feet(f64);
+impl PartialEq<Feet> for Meters {
+    fn eq(&self, other: &Feet) -> bool {
+        self.0 == other.0 * 0.3048
+    }
+}
+
+// impl Eq for Meters {} // Eq: PartialEq<Self>
+
+// ---- PartialOrd and Ord -----
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Version {
+    major: u32,
+    minor: u32,
+}
+
+// trait PartialOrd<Rhs = Self>: PartialEq<Rhs> {
+//     fn partial_cmp(&self, other: &Rhs) -> Option<Ordering>;
+//     // lt, le, gt, ge all have default impls built on partial_cmp
+// }
+
+// trait Ord: Eq + PartialOrd<Self> {
+//     fn cmp(&self, other: &Self) -> Ordering;   // never returns an Option
+// }
+
+#[derive(Debug, PartialEq, Eq)]
+struct User {
+    id: u32,
+    name: String,
+}
+
+impl PartialOrd for User {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for User {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.id.cmp(&other.id)
+    }
+}
+
+// impl Ord for u32 {
+//     fn cmp(&self, other: &Self) -> Ordering {
+//         if *self < *other {
+//             Ordering::Less
+//         } else if *self > *other {
+//             Ordering::Greater
+//         } else {
+//             Ordering::Equal
+//         }
+//     }
+// }
+fn main() {
+    let p1 = Point { x: 1, y: 2 };
+    let p2 = Point { x: 1, y: 2 };
+    let p3 = Point { x: 5, y: 5 };
+
+    println!("{}", p1 == p2); // p1.eq(&p2);
+    println!("{}", p1 != p3); // p1.ne(&p3);
+
+    let nan = f64::NAN;
+    println!("{}", nan == nan);
+
+    let u1 = User {
+        id: 1,
+        name: String::from("Nouman"),
+    };
+
+    let u2 = User {
+        id: 1,
+        name: String::from("Azam"),
+    };
+    println!("u1 equal u2: {}", u1 == u2);
+
+    let v1 = Version { major: 1, minor: 4 };
+    let v2 = Version { major: 1, minor: 9 };
+    let v3 = Version { major: 2, minor: 0 };
+    println!("{}", v1 < v2);
+    println!("{}", v2 < v3);
+
+    let nan = f64::NAN;
+    println!("{:?}", nan.partial_cmp(&1.0));
+
+    let u3 = User {
+        id: 5,
+        name: String::from("Rizwan"),
+    };
+
+    let u4 = User {
+        id: 4,
+        name: String::from("khan"),
+    };
+
+    let mut users = vec![u2, u1, u3, u4];
+    users.sort();
+
+    for user in &users {
+        println!("sorted users: {:?}", user);
+    }
+
+    println!("Minimum user: {:?}", users.iter().min());
+    println!("Maximum user: {:?}", users.iter().max());
+}
+/*
+----------------------------------------------------------------------------------------------------
+Concept / Topic        | Explanation
+-----------------------|-----------------------------------------------------------------------------
+PartialEq and Eq       | PartialEq defines equality and inequality operations for types.
+                       | Eq is a marker trait that guarantees every value be equal to itself.
+
+Partial Ordering       | PartialOrd provides ordering operations <, <=, >, and >= for custom types.
+and Total Ordering     | The ordering may be incomplete.
+                       | Ord provides a total ordering.
+
+Manual Implementations | Desired when the default field-by-field behavior is not appropriate.
+
+Sorting and Collection | Implementing PartialOrd / Ord allows oeprations such as sort, min and max.
+----------------------------------------------------------------------------------------------------
+
+*/

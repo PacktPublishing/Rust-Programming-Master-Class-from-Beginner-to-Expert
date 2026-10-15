@@ -1,0 +1,85 @@
+// -------------------------------------------
+// 			- The Drop Trait
+// -------------------------------------------
+use std::mem;
+use std::rc::Rc;
+
+struct Droplet {
+    name: String,
+}
+
+impl Drop for Droplet {
+    fn drop(&mut self) {
+        println!("-> dropping Droplet [{}]", self.name);
+    }
+}
+
+struct Container {
+    first: Droplet,
+    second: Droplet,
+}
+
+impl Drop for Container {
+    fn drop(&mut self) {
+        println!("Container::drop body running (fields not dropped yet)");
+    }
+}
+
+fn main() {
+    {
+        let a = Droplet {
+            name: String::from("a"),
+        };
+        let b = Droplet {
+            name: String::from("b"),
+        };
+        let c = Droplet {
+            name: String::from("c"),
+        };
+        println!("a, b, c created, still inside the block");
+    }
+    // Point 1: Local variables are dropped in reverse order
+    println!("---");
+
+    let d = Droplet {
+        name: String::from("d"),
+    };
+    // d.drop();
+    // Point 2: Explicit call to drop is not allowed
+
+    mem::drop(d); // equivalent to: drop(d);
+    println!("after mem::drop(d)");
+    // Point 3: The drop in std is used to drop a value
+
+    println!("---");
+
+    {
+        let cont = Container {
+            first: Droplet {
+                name: String::from("first"),
+            },
+            second: Droplet {
+                name: String::from("second"),
+            },
+        };
+        println!("Container created");
+    }
+    // Point 4: Drop order in custom defined types: source code or declaration order
+
+    println!("---");
+
+    {
+        let cont = Container {
+            first: Droplet {
+                name: String::from("L-first"),
+            },
+            second: Droplet {
+                name: String::from("L-second"),
+            },
+        };
+        println!("LoggedContainer created");
+    }
+    // Point 5: Drop implementation for type, does not affect the source code drop order of its fields
+
+    println!("---");
+}
